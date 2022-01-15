@@ -1,18 +1,231 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="mt-2">
+    <Loading :loading="cargando"></Loading>
+    <Title
+      :title="'Inicio'"
+      :color="'secondary--text'"
+      :path="'Estadísticas'"
+    ></Title>
+    <div class="d-flex justify-space-around flex-wrap">
+       <v-card
+        class="pa-4  text-center mb-2"
+        width="420"
+        height="380"
+        hover
+      >
+        <v-card-subtitle>
+          <span class="font-weight-light text-h4"
+            >Proyectos</span
+          >
+        </v-card-subtitle>
+        <v-card-text>
+          <v-icon class="mb-5" color="success" size="80">fas fa-pencil-ruler</v-icon>
+          <p class="font-weight-bold text-h3 ">
+            {{ projects.totalStats.totalProjecs }}
+          </p>
+          <p class="font-weight-light">
+            Un proyecto te permite poder administrar tus dispositivos
+          </p>
+          <v-btn class="ma-2 text-capitalize font-weight-light" color="success" dark to="/proyectos">
+            Consultar
+          </v-btn>
+        </v-card-text>
+        
+      </v-card>
+       </v-card>
+       <v-card
+        class="pa-4  text-center mb-2"
+        width="420"
+        height="380"
+        hover
+      >
+        <v-card-subtitle>
+          <span class="font-weight-light text-h4"
+            >Grupos</span
+          >
+        </v-card-subtitle>
+        <v-card-text>
+          <v-icon class="mb-5" color="warning" size="80">fas fa-layer-group</v-icon>
+          <p class="font-weight-bold text-h3 ">
+            {{ projects.totalStats.totalGroups }}
+          </p>
+          <p class="font-weight-light">
+            Organizan los dispostivos de un proyecto siguiendo un modelo lógico
+          </p>
+           <v-btn class="ma-2 text-capitalize font-weight-light" color="warning" dark to="/grupos">
+            Consultar
+          </v-btn>
+        </v-card-text>
+      </v-card>
+      <v-card
+        class="pa-4  text-center mb-2"
+        width="420"
+        height="380"
+        hover
+      >
+        <v-card-subtitle>
+          <span class="font-weight-light text-h4"
+            >Dispositivos</span
+          >
+        </v-card-subtitle>
+        <v-card-text>
+          <v-icon class="mb-5" color="info" size="80">fas fa-microchip</v-icon>
+          <p class="font-weight-bold text-h3 ">
+            {{ projects.totalStats.totalDevices }}
+          </p>
+          <p class="font-weight-light">
+            Obtienen información de los
+            sensores que tienen conectados
+          </p>
+           <v-btn class="ma-2 text-capitalize font-weight-light" color="primary" dark to="/dispositvos">
+            Consultar
+          </v-btn>
+        </v-card-text>
+      </v-card>
+       <v-card
+        class="pa-4  text-center mb-2"
+        width="420"
+        height="380"
+        hover
+      >
+        <v-card-subtitle>
+          <span class="font-weight-light text-h4"
+            >Sensores</span
+          >
+        </v-card-subtitle>
+        <v-card-text>
+          <v-icon class="mb-5" color="error" size="80">fas fa-thermometer-three-quarters</v-icon>
+          <p class="font-weight-bold text-h3 ">
+            {{ projects.totalStats.totalSensors }}
+          </p>
+          <p class="font-weight-light">
+            Envían y reciben diferentes señales para ser explotadas en esta plataforma
+          </p>
+         <v-btn class="ma-2 text-capitalize font-weight-light" color="error" dark to="/sensores">
+            Consultar
+          </v-btn>
+        </v-card-text>
+      </v-card>     
+    </div>
+    <div class="d-flex justify-space-around flex-wrap mt-2">
+       <v-card
+        class="pa-4  text-center mb-2"
+        width="420"
+        height="380"
+        hover
+      >
+        <v-card-subtitle>
+          <span class="font-weight-light text-h4"
+            >Usuarios</span
+          >
+        </v-card-subtitle>
+        <v-card-text>
+          <v-icon class="mb-5" color="deep-purple" size="80">fas fas fa-user</v-icon>
+          <p class="font-weight-bold text-h3">
+            {{ projects.totalStats.totalUsers }}
+          </p>
+          <p class="font-weight-light">
+            Crean, consultan modifican o borran cada una de los componentes de sus proyectos
+          </p>
+         <v-btn class="ma-2 text-capitalize font-weight-light" color="deep-purple" dark to="/sensores">
+            Consultar
+          </v-btn>
+        </v-card-text>
+      </v-card>     
+       <v-card
+        class="pa-4  text-center mb-2"
+        width="1300"
+        height="380"
+        hover
+      >
+      </v-card>
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import { mapState, mapActions } from 'vuex';
+import Loading from '@/components/Loading';
+import Title from '@/components/Title';
 
 export default {
   name: 'Home',
+  data() {
+    return {
+      cargando: false,
+      totalProjects: 0,
+      totalGroups: 0,
+      totalDevices: 0,
+      totalSensors: 0,
+      totalUsers: 0,
+    };
+  },
+  props: ['loading', 'title', 'color', 'path'],
   components: {
-    HelloWorld
-  }
-}
+    Loading,
+    Title,
+  },
+  computed: {
+    ...mapState(['projects', 'users']),
+  },
+  methods: {
+    ...mapActions(['getProjects']),
+
+    async loadProjects2() {
+      try {
+        const token = this.users.user.token;
+        await this.$store.dispatch('projects/getProjects', token);
+        const list = this.projects.projectList;
+
+        await Promise.all(
+          list.map(async (project) => {
+            const idPro = project._id;
+            const stats = await this.loadStats(token, idPro);
+            console.log(stats);
+          })
+        );
+      } catch (err) {
+        console.log('[ERROR] - projects:LoadProjects: ' + err.message);
+      }
+    },
+
+    async loadProjectStats() {
+      try {
+        const token = this.users.user.token;
+        await this.$store.dispatch('projects/getProjects', token);
+        const list = this.projects.projectList;
+        const stats = this.$store.dispatch('projects/getTotalStats', token);
+      } catch (err) {
+        console.log('[ERROR] - projects:LoadProjects: ' + err.message);
+      }
+    },
+
+    async loadStats2(token, idProject) {
+      try {
+        const stats = this.$store.dispatch('projects/getStatsProject', [
+          token,
+          idProject,
+        ]);
+        return stats;
+      } catch (err) {
+        console.log('[ERROR] - projects:LoadStats: ' + err.message);
+      }
+    },
+  },
+  created() {
+    this.cargando = true;
+    //this.loadProjects();
+    this.loadProjectStats();
+    this.cargando = false;
+  },
+};
 </script>
+
+<style scoped>
+.projectlist {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+</style>
