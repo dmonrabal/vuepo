@@ -2,9 +2,9 @@
   <div class="mt-2">
     <Loading :loading="cargando"></Loading>
     <Title
-      :title="'Inicio'"
+      :title="'Estadísticas'"
       :color="'secondary--text'"
-      :path="'Estadísticas'"
+      :path="'Home /'"
     ></Title>
     <div class="d-flex justify-space-around flex-wrap">
        <v-card
@@ -30,8 +30,6 @@
             Consultar
           </v-btn>
         </v-card-text>
-        
-      </v-card>
        </v-card>
        <v-card
         class="pa-4  text-center mb-2"
@@ -138,6 +136,9 @@
         height="380"
         hover
       >
+      <v-card-text>
+         <v-icon class="mb-5" color="primary" size="200">fas fa-sitemap</v-icon>
+      </v-card-text>
       </v-card>
     </div>
   </div>
@@ -171,24 +172,6 @@ export default {
   methods: {
     ...mapActions(['getProjects']),
 
-    async loadProjects2() {
-      try {
-        const token = this.users.user.token;
-        await this.$store.dispatch('projects/getProjects', token);
-        const list = this.projects.projectList;
-
-        await Promise.all(
-          list.map(async (project) => {
-            const idPro = project._id;
-            const stats = await this.loadStats(token, idPro);
-            console.log(stats);
-          })
-        );
-      } catch (err) {
-        console.log('[ERROR] - projects:LoadProjects: ' + err.message);
-      }
-    },
-
     async loadProjectStats() {
       try {
         const token = this.users.user.token;
@@ -197,18 +180,6 @@ export default {
         const stats = this.$store.dispatch('projects/getTotalStats', token);
       } catch (err) {
         console.log('[ERROR] - projects:LoadProjects: ' + err.message);
-      }
-    },
-
-    async loadStats2(token, idProject) {
-      try {
-        const stats = this.$store.dispatch('projects/getStatsProject', [
-          token,
-          idProject,
-        ]);
-        return stats;
-      } catch (err) {
-        console.log('[ERROR] - projects:LoadStats: ' + err.message);
       }
     },
   },

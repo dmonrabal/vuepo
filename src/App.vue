@@ -27,8 +27,8 @@ export default {
   methods: {
     checkUserSession() {
       const user = JSON.parse(localStorage.getItem('user'));
+      //console.log('Mi payload recuperado localStorage: ', user);
       if (user && user.token) {
-        //console.log('Mi payload recuperado localStorage: ', user);
         this.users.user = user;
         this.users.isLogged = true;
       }

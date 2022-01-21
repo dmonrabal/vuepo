@@ -4,12 +4,14 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
       
-      <v-btn  v-if="!users.isLogged" :to="{name: 'Login'}">
+      <v-btn  plain v-if="!users.isLogged" :to="{name: 'Login'}">
+        <span class="mr-2" >Sign in</span>
         <v-icon
             <i class="fas fa-sign-in-alt"></i>
         </v-icon>
       </v-btn>
-      <v-btn @click="closeSession" v-if="users.isLogged">
+      <v-btn plain @click="closeSession" v-if="users.isLogged">
+        <span class="mr-2" >Sign out</span>
         <v-icon
             <i class="fas fa-sign-out-alt"></i>
         </v-icon>
@@ -42,7 +44,7 @@
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title v-text="item.title"></v-list-item-title></v-list-item-title>
+            <v-list-item-title v-text="item.title"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -54,7 +56,7 @@
             <v-icon >{{ item.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title v-text="item.title"></v-list-item-title></v-list-item-title>
+            <v-list-item-title v-text="item.title"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -66,7 +68,7 @@
             <v-icon >{{ item.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title v-text="item.title"></v-list-item-title></v-list-item-title>
+            <v-list-item-title v-text="item.title"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -79,11 +81,23 @@
             <v-icon >{{ item.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title v-text="item.title"></v-list-item-title></v-list-item-title>
+            <v-list-item-title v-text="item.title"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
 
+      
+       <v-divider class="mt-2"></v-divider>
+       <v-list dense>
+        <v-list-item :key="grid.title" :to="grid.to.name">
+          <v-list-item-icon>
+            <v-icon >{{ grid.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title v-text="grid.title"></v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
     </v-navigation-drawer>
   </v-card>
 </template>
@@ -98,9 +112,9 @@ export default {
         { title: 'Dashboard', icon: 'fas fa-tachometer-alt', to: {name:'dashboard'} },
       ],
       structure: [
-      { title: 'Proyectos', icon: 'fas fa-sitemap', to: {name:'/proyectos'}},
+      { title: 'Proyectos', icon: 'fas fa-pencil-ruler', to: {name:'/proyectos'}},
       { title: 'Grupos', icon: 'fas fa-layer-group', to: {name:'/grupos'} },
-      { title: 'Dispositivos', icon: 'fas fa-microchip', to: {name:'/dispostivos'} },
+      { title: 'Dispositivos', icon: 'fas fa-microchip', to: {name:'/dispositivos'} },
       { title: 'Sensores', icon: 'fas fa-temperature-high', to: {name:'/grupos'} }],
 
       data: [
@@ -112,6 +126,7 @@ export default {
            { title: 'Usuario', icon: 'fas fa-user', to: {name:'ingreso'} },
            { title: 'Ajustes', icon: 'fas fa-wrench', to: {name:'ajustes'} },
         ],
+      grid: {title: 'Grid', icon: 'fas fa-th', to: {name:'/grid'} },
       mini: true,
     };
   },

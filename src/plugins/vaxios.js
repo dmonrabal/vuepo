@@ -10,7 +10,7 @@ export default {
     return axios.post(url, body, options).then((response) => response.data);
   },
   update(url, body, options) {
-    return axios.put(url, body, options).then((response) => response.data);
+    return axios.patch(url, body, options).then((response) => response.data);
   },
   delete(url, options) {
     return axios.delete(url, options);

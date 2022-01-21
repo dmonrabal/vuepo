@@ -58,7 +58,6 @@
               <v-card-text class="text-h7 text-md-center grey--text">
                 Olvidé la contraseña</v-card-text
               >
-              {{ users.user.token }}
             </v-card-text>
             <v-divider></v-divider>
             <v-card-text>

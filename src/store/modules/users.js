@@ -16,6 +16,7 @@ const mutations = {
       router.push('/');
     } else {
       state.isLogged = false;
+      localStorage.removeItem('user');
       router.push('/login');
     }
   },
@@ -28,7 +29,7 @@ const actions = {
         email: user.email,
         password: user.password,
       });
-      console.log(res);
+      //console.log(res);
       let userLogged = {
         name: res.data.user.name,
         email: res.data.user.email,
@@ -36,7 +37,6 @@ const actions = {
         _id: res.data.user._id,
         token: res.token,
       };
-      //userLogged.token = res.token;
       commit('setUser', userLogged);
     } catch (e) {
       console.log('[ERROR] - logIn: ' + e.message);
@@ -44,7 +44,6 @@ const actions = {
   },
   logOut({ commit, state }) {
     commit('setUser', '');
-    console.log('[INFO] - Cerrando session');
   },
 };
 
