@@ -1,4 +1,5 @@
 import vaxios from '@/plugins/vaxios';
+import AppError from '@/plugins/appError';
 
 const state = () => ({
   projectList: [],
@@ -23,11 +24,11 @@ const mutations = {
   setProjects(state, payload) {
     state.projectList = payload.projects;
   },
-  
+
   setProject(state, payload) {
     state.projectSelected = payload;
   },
-  
+
   setTotalStats(state, payload) {
     state.totalStats = payload;
   },
@@ -49,7 +50,7 @@ const actions = {
       console.log('[ERROR] projects:getProjects: ', err);
     }
   },
-  
+
   async getProject({ commit }, idProject) {
     const config = {
       headers: {
@@ -63,7 +64,6 @@ const actions = {
       console.log('[ERROR] projects:getProjects: ', err);
     }
   },
-
 
   async createProject({ commit }, params) {
     const token = params[0];
@@ -102,14 +102,11 @@ const actions = {
     }
   },
 
-
   selectProject({ commit }, project) {
     commit('setProject', project);
   },
 
-
-
-  // Groups methods
+  // GROUP METHODS
   async createGroup({ dispatch, commit }, params) {
     const token = params[0];
     const body = params[1];
@@ -121,15 +118,42 @@ const actions = {
     };
 
     try {
-      const res = await vaxios.post(`/projects/${idProject}/groups`, body, config);
-      //console.log('Res update project:', res);
-      
+      const resDB = await vaxios.post(
+        `/projects/${idProject}/groups`,
+        body,
+        config
+      );
+      commit('setProject', resDB.data.project);
+      const resUpPr = await dispatch('getProjects', token);
+      return { status: 'success', resUpPr };
+    } catch (err) {
+      throw new AppError(`Fallo al crear grupo: ${err.message}`);
+    }
+  },
+
+  async updateGroup({ dispatch, commit }, params) {
+    const token = params[0];
+    const body = params[1];
+    const idProject = params[2];
+    const idGroup = params[3];
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    try {
+      const res = await vaxios.update(
+        `/projects/${idProject}/groups/${idGroup}`,
+        body,
+        config
+      );
       commit('setProject', res.data.project);
       const resUpPr = await dispatch('getProjects', token);
-      return resUpPr;
+      return res;
     } catch (err) {
-      console.log('[ERROR] projects:createGroup: ', err);
-      return { status: 'failed', message: err.message };
+      console.log('[ERROR] projects:updateGroup: ', err);
+      //return { status: 'failed', message: err.message };
+      return res;
     }
   },
 
@@ -143,10 +167,13 @@ const actions = {
       },
     };
     try {
-      const res = await vaxios.delete(`/projects/${idProject}/groups/${idGroup}`, config);
+      const res = await vaxios.delete(
+        `/projects/${idProject}/groups/${idGroup}`,
+        config
+      );
       commit('setProject', res.data.project);
-      const resUpPr = await dispatch('getProjects', params);
-      return resUpPr;
+      const resUpPr = await dispatch('getProjects', token);
+      return res;
     } catch (err) {
       return { status: 'failed', message: err.message };
     }
@@ -230,7 +257,7 @@ const actions = {
         let groupLoad = group;
         groupLoad.project = project.name;
         groupLoad.idProject = project._id;
-        
+
         state.groupsList.push(groupLoad);
       });
     });
