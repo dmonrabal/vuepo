@@ -9,11 +9,16 @@
             >Vuepo IoT</v-toolbar-title
           >
         </v-toolbar>
-        <v-card-text class="text-h6 text-md-center grey--text">
+        <v-card-text
+          class="text-h5 text-md-center font-weight-light grey--text"
+        >
           Accede a nuestra plataforma
         </v-card-text>
         <v-card-text>
-          <form @submit.prevent="logIn({ email: email, password: pass })">
+          <form
+            @submit.prevent="logIn({ email: email, password: pass })"
+            v-if="!signup"
+          >
             <v-text-field
               prepend-icon="person"
               type="email"
@@ -47,12 +52,19 @@
               >Campo Requerido</small
             >
             <v-card-text>
+              <Alert
+                :show="myAlert.enable"
+                :type="myAlert.type"
+                :text="myAlert.text"
+              ></Alert>
+            </v-card-text>
+            <v-card-text>
               <v-btn
                 block
                 color="info"
                 class="mt-5"
                 type="submit"
-                :disabled="$v.$invalid"
+                :disabled="$v.email.$invalid || $v.pass.$invalid"
                 >Ingresa</v-btn
               >
               <v-card-text class="text-h7 text-md-center grey--text">
@@ -62,7 +74,116 @@
             <v-divider></v-divider>
             <v-card-text>
               <p class="text-md-center">¿No eres usuario?</p>
-              <v-btn block color="success" @click="logIn">Regístrate</v-btn>
+              <v-btn block color="success" @click="switchLogSign"
+                >Regístrate</v-btn
+              >
+            </v-card-text>
+          </form>
+          <form
+            @submit.prevent="
+              newUser({
+                name: name,
+                email: email,
+                password: pass,
+                passwordConfirm: repass,
+              })
+            "
+            v-if="signup"
+          >
+            <v-text-field
+              prepend-icon="person"
+              v-model="$v.name.$model"
+              label="Name"
+            >
+            </v-text-field>
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.name.required"
+              >Campo Requerido</small
+            >
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.name.minLength"
+              >Mínimo 6 carácteres</small
+            >
+            <v-text-field
+              prepend-icon="person"
+              type="email"
+              v-model="$v.email.$model"
+              label="Email"
+            >
+            </v-text-field>
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.email.required"
+              >Campo Requerido</small
+            >
+            <small class="text-danger d-block mb-1 ml-8" v-if="!$v.email.email"
+              >Email no válido</small
+            >
+            <v-text-field
+              prepend-icon="lock"
+              type="password"
+              class="mt-3"
+              v-model="$v.pass.$model"
+              label="Password"
+            ></v-text-field>
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.pass.minLength"
+              >Mínimo 6 carácteres</small
+            >
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.pass.required"
+              >Campo Requerido</small
+            >
+
+            <v-text-field
+              prepend-icon="lock"
+              type="password"
+              class="mt-3"
+              v-model="$v.repass.$model"
+              label="Retype password"
+            ></v-text-field>
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.repass.minLength"
+              >Mínimo 6 carácteres</small
+            >
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.repass.required"
+              >Campo Requerido</small
+            >
+            <small
+              class="text-danger d-block mb-1 ml-8"
+              v-if="!$v.repass.sameAsPassword"
+              >Las contraseñas no coinciden</small
+            >
+            <v-card-text>
+              <Alert
+                :show="myAlert.enable"
+                :type="myAlert.type"
+                :text="myAlert.text"
+              ></Alert>
+            </v-card-text>
+            <v-card-text>
+              <v-btn
+                block
+                color="info"
+                class="mt-5"
+                type="submit"
+                :disabled="$v.$invalid"
+                >Regístrate</v-btn
+              >
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-text>
+              <p class="text-md-center">¿Ya eres usuario?</p>
+              <v-btn block color="success" @click="switchLogSign"
+                >Ingresa</v-btn
+              >
             </v-card-text>
           </form>
         </v-card-text>
@@ -72,17 +193,26 @@
 </template>
 
 <script>
-//import { mapActions } from 'vuex';
-import { required, minLength, email } from 'vuelidate/lib/validators';
+import { required, minLength, email, sameAs } from 'vuelidate/lib/validators';
 import { mapState, mapActions } from 'vuex';
 import Loading from '@/components/Loading';
+import Alert from '@/components/Alert';
+import utils from '@/plugins/utils';
 
 export default {
   data() {
     return {
+      name: '',
       email: '',
       pass: '',
+      repass: '',
       cargando: false,
+      signup: false,
+      myAlert: {
+        enable: false,
+        type: 'success',
+        text: '',
+      },
     };
   },
   props: ['loading'],
@@ -95,9 +225,19 @@ export default {
       required,
       minLength: minLength(6),
     },
+    name: {
+      required,
+      minLength: minLength(6),
+    },
+    repass: {
+      required,
+      minLength: minLength(6),
+      sameAsPassword: sameAs('pass'),
+    },
   },
   components: {
     Loading,
+    Alert,
   },
   computed: {
     ...mapState(['users']),
@@ -105,11 +245,33 @@ export default {
   methods: {
     ...mapActions(['logIn']),
 
+    switchLogSign() {
+      (this.name = ''),
+        (this.email = ''),
+        (this.pass = ''),
+        (this.repass = ''),
+        (this.signup = !this.signup);
+    },
+
     async logIn(user) {
       this.cargando = true;
-      await this.$store.dispatch('users/logIn', user);
+      const res = await this.$store.dispatch('users/logIn', user);
+      //console.log(res);
       this.cargando = false;
-      
+
+      if (res.status === 'fail') {
+        utils.alert(this.myAlert, 'error', res.message);
+      }
+    },
+
+    async newUser(user) {
+      this.cargando = true;
+      const res = await this.$store.dispatch('users/createUser', user);
+      this.cargando = false;
+      //console.log(res);
+      if (res.status === 'fail') {
+        utils.alert(this.myAlert, 'error', res.message);
+      }
     },
   },
 };

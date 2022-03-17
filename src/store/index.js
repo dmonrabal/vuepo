@@ -5,6 +5,7 @@ import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import projects from './modules/projects';
 import users from './modules/users';
+import devices from './modules/devices';
 
 Vue.use(Vuex);
 
@@ -17,5 +18,6 @@ export default new Vuex.Store({
   modules: {
     projects,
     users,
+    devices
   },
 });

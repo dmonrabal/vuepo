@@ -118,12 +118,12 @@ export default {
       { title: 'Sensores', icon: 'fas fa-temperature-high', to: {name:'/grupos'} }],
 
       data: [
-        { title: 'Datos', icon: 'fas fa-database', to: {name:'tramas'} },
-         { title: 'Mapa', icon: 'fas fa-map-marker-alt', to: {name:'mapa'} },
-         { title: 'Estadisticas', icon: 'fas fa-chart-bar', to: {name:'estadisticas'} },
+         { title:  'Datos', icon: 'fas fa-database', to: {name:'/datos'} },
+         { title: 'Mapa', icon: 'fas fa-map-marker-alt', to: {name:'/mapa'} },
+         { title: 'Estadisticas', icon: 'fas fa-chart-bar', to: {name:'/estadisticas'} },
       ],
       admin: [
-           { title: 'Usuario', icon: 'fas fa-user', to: {name:'ingreso'} },
+           { title: 'Usuario', icon: 'fas fa-user', to: {name:'/usuario'} },
            { title: 'Ajustes', icon: 'fas fa-wrench', to: {name:'ajustes'} },
         ],
       grid: {title: 'Grid', icon: 'fas fa-th', to: {name:'/grid'} },
