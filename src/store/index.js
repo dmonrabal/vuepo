@@ -1,11 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-// import vaxios from '../plugins/vaxios';
-// import router from '../router/index';
 import createPersistedState from 'vuex-persistedstate';
 import projects from './modules/projects';
 import users from './modules/users';
 import devices from './modules/devices';
+import charts from './modules/charts';
 
 Vue.use(Vuex);
 
@@ -18,6 +17,7 @@ export default new Vuex.Store({
   modules: {
     projects,
     users,
-    devices
+    devices,
+    charts
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card v-if="users.isLogged">
     <v-app-bar app>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
@@ -23,19 +23,18 @@
       permanen
       app
     >
-      <v-list-item class="px-2">
+      <v-list-item class="px-2" v-if="users.isLogged">
         <v-list-item-avatar>
-          <v-img src="https://randomuser.me/api/portraits/men/85.jpg"></v-img>
+          <v-img :src="users.user.photo"></v-img>
         </v-list-item-avatar>
 
-        <v-list-item-title>David Monrabal</v-list-item-title>
+        <v-list-item-title>{{users.user.name}}</v-list-item-title>
 
         <v-btn icon @click.stop="mini = !mini">
           <v-icon>mdi-chevron-left</v-icon>
         </v-btn>
       </v-list-item>
-
-      <v-divider class="mt-2"></v-divider>
+      <v-divider class="mt-2" v-if="users.isLogged"></v-divider>
 
       <v-list dense>
         <v-list-item v-for="item in items" :key="item.title" :to="item.to.name">
@@ -106,6 +105,8 @@ import { mapState, mapActions } from 'vuex';
 export default {
   data() {
     return {
+      user: '',
+      photo: '',
       drawer: true,
       items: [
         { title: 'Inicio', icon: 'fas fa-home', to: {name:'/'} },
@@ -131,17 +132,25 @@ export default {
     };
   },
   computed: {
-     ...mapState(['users']),
+     ...mapState(['projects','users', 'devices']),
   },
   methods: {
     ...mapActions(['logOut']),
-
+    loadUser() {
+       this.user = this.users.user;
+     }, 
+     
      closeSession() {
-        this.$store.dispatch('users/logOut')
+        this.$store.dispatch('users/logOut');
+        this.$store.dispatch('projects/eraseAllData');
+        this.$store.dispatch('devices/eraseAllData');
+        //this.$store.replaceState({projects: {}, users:{}, devices: {}});
      }
 
-
   },
+  created() {
+   // this.loadUser();
+  }
 };
 </script>
 

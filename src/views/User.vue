@@ -74,18 +74,11 @@
         >
           <v-row class="mt-5 align-center">
           <v-avatar size="160">
-            <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="John" />
-            <!--img src="../../public/users/photo.jpg" alt="John" /-->
+            <!--img src="https://randomuser.me/api/portraits/men/85.jpg" alt="John" v-if="!users.user.photo"/-->
+            <img v-if="urlTemp" :src="urlTemp" alt="photo" />
+            <img v-else :src="users.user.photo" alt="photo"/>
           </v-avatar>
           </v-row> 
-          <v-row class="mt-5 align-center">
-              <v-card-text v-if="file">
-            <h4> {{ file.name }}</h4>
-            <v-avatar size="50">
-              <v-img :src="urlTemp"></v-img>
-            </v-avatar>
-          </v-card-text>
-          </v-row>
            <v-row class="align-start mb-5 mt-5">
             <input type="file" ref="bimagen" class="d-none" @change="searchImage($event)">
             <v-btn
@@ -105,7 +98,7 @@
                 fab
                 class="ml-3"
                 title="Subir imagen"
-                :disabled="file === null"
+                :disabled="file === null || urlTemp === null"
                 @click="uploadImage()">
                 
                 <v-icon>fas fa-upload</v-icon>
@@ -193,6 +186,7 @@ import Loading from '@/components/Loading';
 import Title from '@/components/Title';
 import utils from '@/plugins/utils';
 
+import { firebase, storage } from '@/plugins/firebase';
 import { mapState } from 'vuex';
 
 export default {
@@ -201,7 +195,7 @@ export default {
       myUser: {},
       cargando: false,
       file: null,
-      urlTemp: null,
+      urlTemp: '',
       myAlert: {
         enable: false,
         type: 'success',
@@ -285,7 +279,7 @@ export default {
       this.cargando = false;
       this.dialog = false;
       const params = [this.users.user.token];
-      params.push({name: this.editedItem.name, email: this.editedItem.email});
+      params.push({name: this.editedItem.name, email: this.editedItem.email, photo: this.users.user.photo});
       this.updateItem(params);
       this.loadUSer();
       this.cargando = false;
@@ -313,14 +307,31 @@ export default {
       reader.onload = (e) => {
         //console.log(e.target.result);
         this.urlTemp = e.target.result;
+        this.users.user.photo = e.target.result;
       }
     },
 
     async uploadImage() {
       try {
-
+        const refImg = storage.ref().child(this.myUser.email).child('fotoPerfil');
+        //const refImg = storage.ref().child('prueba').child('fotoPerfil');
+        const res = await refImg.put(this.file);
+        console.log(res);
+        const urlDescarga = await refImg.getDownloadURL();
+        console.log(urlDescarga);
+        
+        // Updating DB
+        const params = [this.users.user.token];
+        params.push({photo: urlDescarga});
+        this.updateItem(params);
+        
+        this.users.user.photo = urlDescarga;
+        this.urlTemp = null;
+        this.file = null;
+        utils.alert(this.myAlert, 'success', utils.messages.USER_IMGUPD_SUCCESS);
       } catch (err) {
         console.log(err);
+        utils.alert(this.myAlert, 'error', utils.messages.USER_IMGUPD_ERROR);
       }
     }
   },

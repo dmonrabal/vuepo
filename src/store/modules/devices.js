@@ -194,9 +194,7 @@ const actions = {
         lastSample: params[5],
       },
     };
-
     try {
-      //console.log('PARAMS enviados: ', params);
       const res = await vaxios.get(
         `/data/device/${idDev}/sensors/${idsSen}`,
         config
@@ -211,7 +209,15 @@ const actions = {
 
   passDevicesPopulated({ commit }, devices ) {
     commit('setAllDevices', devices);
-  }
+  },
+
+  eraseAllData({ commit, state }) {
+    commit('setAllDevices', []);
+    commit('setDevicesGroup', []);
+    commit('setDeviceSelected', '');
+  },
 };
 
 export default { namespaced: true, state, getters, mutations, actions };
+
+

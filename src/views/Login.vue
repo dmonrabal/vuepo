@@ -195,6 +195,7 @@
 <script>
 import { required, minLength, email, sameAs } from 'vuelidate/lib/validators';
 import { mapState, mapActions } from 'vuex';
+import { firebase, storage } from '@/plugins/firebase';
 import Loading from '@/components/Loading';
 import Alert from '@/components/Alert';
 import utils from '@/plugins/utils';
@@ -256,23 +257,42 @@ export default {
     async logIn(user) {
       this.cargando = true;
       const res = await this.$store.dispatch('users/logIn', user);
-      //console.log(res);
-      this.cargando = false;
+      console.log('Mi respuesta: ', res);
 
-      if (res.status === 'fail') {
+      if (res.status === 'success') {
+        const resLoad = await this.loadImage();
+      }
+
+      this.cargando = false;
+      if (res.status === 'failed') {
         utils.alert(this.myAlert, 'error', res.message);
+      } else {
+        utils.alert(this.myAlert, 'success', 'Usuario registrado correctamente.');
       }
     },
 
     async newUser(user) {
       this.cargando = true;
       const res = await this.$store.dispatch('users/createUser', user);
+      console.log('RESSSSS-> ', res);
       this.cargando = false;
-      //console.log(res);
-      if (res.status === 'fail') {
+      if (res.status === 'failed') {
         utils.alert(this.myAlert, 'error', res.message);
       }
     },
+
+    async loadImage() {
+       try {
+        const refImg = storage.ref().child(this.users.user.email).child('fotoPerfil');
+        const urlDescarga = await refImg.getDownloadURL();
+        console.log(urlDescarga);
+        this.users.user.photo = urlDescarga;
+        utils.alert(this.myAlert, 'success', utils.messages.USER_IMGUPD_SUCCESS);
+      } catch (err) {
+        console.log(err);
+        utils.alert(this.myAlert, 'error', utils.messages.USER_IMGUPD_ERROR);
+      }
+    }
   },
 };
 </script>

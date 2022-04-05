@@ -182,7 +182,7 @@ const actions = {
         body,
         config
       );
-     // commit('setProject', res.data.project);
+      // commit('setProject', res.data.project);
       const resUpPr = await dispatch('getProjects', token);
       return res;
     } catch (err) {
@@ -301,6 +301,14 @@ const actions = {
 
   selectGroup({ commit, state }, group) {
     commit('setGroup', group);
+  },
+
+  eraseAllData({ commit, state }) {
+    commit('setProjects', []);
+    commit('setProject', '');
+    commit('setGroups', []);
+    commit('setGroup', '');
+    commit('setTotalStats', '');
   },
 };
 

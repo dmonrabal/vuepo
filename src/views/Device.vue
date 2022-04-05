@@ -322,13 +322,11 @@ export default {
       dialogDelete: false,
       editedIndex: -1,
       editedItem: {
-        _id: '',
         name: '',
         unit: '',
         symbol: '',
       },
       defaultItem: {
-        _id: '',
         name: '',
         unit: '',
         symbol: '',
@@ -401,21 +399,6 @@ export default {
       this.dialogDelete = true;
     },
 
-    // TODO createSensor
-    async createItem(params) {
-      try {
-        //console.log('Parámetros pasados: ', params);
-        const res = await this.$store.dispatch('devices/createDevice', params);
-        utils.alert(
-          this.myAlert,
-          'success',
-          utils.messages.DEVICE_CREATE_SUCCESS
-        );
-      } catch (err) {
-        utils.alert(this.myAlert, 'error', utils.messages.DEVICE_CREATE_ERROR);
-      }
-    },
-
     // TODO updateSensor
     async updateItem(params) {
       try {
@@ -432,31 +415,23 @@ export default {
       }
     },
 
-    // TODO removeSensor
-    async removeItem(params) {
-      try {
-        //console.log('Lo que enviamos: ', params);
-        const res = await this.$store.dispatch('devices/deleteDevice', params);
-        utils.alert(
-          this.myAlert,
-          'success',
-          utils.messages.DEVICE_DELETE_SUCCESS
-        );
-      } catch (err) {
-        utils.alert(this.myAlert, 'error', utils.messages.DEVICE_DELETE_ERROR);
-      }
-    },
-
     async deleteItemConfirm() {
       this.cargando = true;
       let params = [this.users.user.token];
-      // params.push(this.projects.projectSelected._id);
-      // params.push(this.projects.groupSelected._id);
-      // params.push(this.devices.deviceSelected._id);
-      // await this.removeItem(params);
-      // this.closeDelete();
-      // await this.loadDevices();
+      params.push(this.projects.projectSelected._id);
+      params.push(this.projects.groupSelected._id);
+      let slist = this.devices.deviceSelected.sensors.filter((elem) => {
+        return elem._id !== this.editedItem._id;
+      });
+      let body = {
+        sensors: slist,
+      };
+      params.push(body);
+      params.push(this.devices.deviceSelected._id);
+      await this.updateItem(params);
+      await this.loadSensors();
       this.cargando = false;
+      this.closeDelete();
     },
 
     close() {
@@ -475,7 +450,58 @@ export default {
       });
     },
 
-    async save() {},
+    async save() {
+      this.cargando = true;
+      let params = [this.users.user.token];
+      params.push(this.projects.projectSelected._id);
+      params.push(this.projects.groupSelected._id);
+      let nsenList = [];
+      if (this.editedIndex === -1) {
+        console.log('[INFO] - Creating a new sensor');
+        nsenList = this.addSensor();
+      } else {
+        console.log('[INFO] - Modifying a sensor');
+        nsenList = this.updateSensorList();
+      }
+      let body = {
+        sensors: nsenList,
+      };
+      params.push(body);
+      params.push(this.devices.deviceSelected._id);
+      await this.updateItem(params);
+      await this.loadSensors();
+      this.cargando = false;
+      this.close();
+    },
+
+    addSensor() {
+      let slist = this.devices.deviceSelected.sensors;
+      if (slist && slist.length > 0) {
+        slist.push(this.editedItem);
+      } else {
+        // List empty, firts sensor in list
+        slist = [
+          {
+            name: this.editedItem.name,
+            unit: this.editedItem.unit,
+            symbol: this.editedItem.symbol,
+          },
+        ];
+      }
+      return slist;
+    },
+
+    updateSensorList() {
+      let slist = this.devices.deviceSelected.sensors;
+      slist.find((item) => {
+        if (item._id === this.editedItem._id) {
+          item.name = this.editedItem.name;
+          item.unit = this.editedItem.unit;
+          item.symbol = this.editedItem.symbol;
+        }
+      });
+      return slist;
+    },
 
     async loadSensors() {
       let params = [this.users.user.token];
@@ -518,15 +544,6 @@ export default {
         zoom: 8,
         speed: 1,
       });
-
-      //console.log(newParams);
-      /* => {
-              center: [30, 30],
-              zoom: 9,
-              bearing: 9,
-              pitch: 7
-            }
-      */
     },
   },
   async created() {

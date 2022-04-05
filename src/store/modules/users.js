@@ -1,12 +1,11 @@
 import vaxios from '@/plugins/vaxios';
 import router from '@/router/index';
-
+import AppError from '@/plugins/appError';
 import { auth } from '@/plugins/firebase';
 
 const state = () => ({
   isLogged: false,
   user: '',
-  error: '',
 });
 
 const getters = {};
@@ -16,37 +15,20 @@ const mutations = {
     if (payload !== '') {
       state.isLogged = true;
       localStorage.setItem('user', JSON.stringify(payload));
-      router.push('/');
+      if (!payload.updated) {
+        //router.push('/usuario');
+        router.push('/');
+      }
+      
     } else {
       state.isLogged = false;
       localStorage.removeItem('user');
       router.push('/login');
     }
   },
-
-  setError(state, payload) {
-    state.error = payload;
-  },
 };
 
 const actions = {
-  async logIn2({ commit }, user) {
-    const url = process.env.VUE_APP_URL_PROD + '/users/login';
-    fetch(url, {
-      method: 'POST', // or 'PUT'
-      body: JSON.stringify({
-        email: user.email,
-        password: user.password,
-      }), // data can be `string` or {object}!
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => res.json())
-      .catch((error) => console.error('Error:', error))
-      .then((response) => console.log('Error 2:', response));
-  },
-
   async logIn({ commit }, user) {
     try {
       const res = await vaxios.post('/users/login', {
@@ -54,23 +36,32 @@ const actions = {
         password: user.password,
       });
       // firebase authentication
-      //console.log('[RESPUESTA]: ', res);
       if (res.status !== 'success') {
-        return res.data;
-      } 
-      
-      let userLogged = {
+        throw new AppError(res.data.message, res.data.code);
+      }
+      let userDB = {
         name: res.data.user.name,
         email: res.data.user.email,
         role: res.data.user.role,
+        photo: res.data.user.photo,
         _id: res.data.user._id,
         token: res.token,
       };
-      commit('setUser', userLogged);
+
+      //Firebase login
+      const fres = await auth.signInWithEmailAndPassword(
+        user.email,
+        user.password
+      );
+      //console.log('RESPUESTA FIRBASE: ', fres);
+      userDB.fireUID = fres.user.uid;
+      userDB.fireToken = fres.user.refreshToken;
+      commit('setUser', userDB);
       return res;
     } catch (err) {
-      console.log('[ERROR] - logIn: ', err);
-    } 
+      //console.log('[ERROR] - logIn: ', err);
+      return { status: 'failed', message: err.message };
+    }
   },
 
   async updateUser({ commit, state }, params) {
@@ -81,6 +72,7 @@ const actions = {
         Authorization: `Bearer ${token}`,
       },
     };
+
     try {
       const res = await vaxios.update('/users/updateMe', body, config);
       console.log('RSP: ', res);
@@ -89,16 +81,18 @@ const actions = {
         email: res.data.updatedUser.email,
         role: res.data.updatedUser.role,
         _id: res.data.updatedUser._id,
+        photo: res.data.updatedUser.photo,
+        updated: true,
         token: token,
       };
       state.isLogged = true;
       state.user = userLogged;
       localStorage.setItem('user', JSON.stringify(userLogged));
-      //commit('setUser', userLogged);
+      commit('setUser', userLogged);
       return res;
     } catch (err) {
-      console.log('[ERROR] - updateUser: ' + err.message);
-      return err;
+      //console.log('[ERROR] - updateUser: ' + err.message);
+      return { status: 'failed', message: err.message };
     }
   },
 
@@ -111,9 +105,13 @@ const actions = {
         password: user.password,
         passwordConfirm: user.passwordConfirm,
       });
+
+      // console.log('RESPUESTA HEROKU: ', resDB);
+
       if (resDB.status !== 'success') {
-        return resDB.data;
+        throw new AppError(resDB.data.message, resDB.status);
       }
+
       let userDB = {
         name: resDB.data.user.name,
         email: resDB.data.user.email,
@@ -122,32 +120,31 @@ const actions = {
         token: resDB.data.user.token,
       };
 
-      console.log('RES DB: ', resDB);
       //Firebase create user
       const res = await auth.createUserWithEmailAndPassword(
         user.email,
         user.password
       );
-      userDB.fireUID = res.user.uid;
-      console.log('RES: ', res);
-      commit('setUser', userDB);
 
-      // const fireUser = {
-      //   email: res.user.email,
-      //   uid: res.user.uid,
-      // };
+      //console.log('RESPUESTA FIREBASE: ', res);
+      userDB.fireUID = res.user.uid;
+      commit('setUser', userDB);
 
       return res;
     } catch (err) {
-      console.log('[ERROR] - createUser: ' + err);
-      commit('setError', error);
-      return err;
+      //console.log('[ERROR] - createUser: ' + err);
+      return { status: 'failed', message: err.message };
     }
   },
 
-  logOut({ commit, state }) {
-    commit('setUser', '');
+  async logOut({ commit, state }) {
+    try {
+      const res = await auth.signOut();
+      commit('setUser', '');
+    } catch (err) {
+      console.log('[ERROR] ', err);
+    }
   },
 };
 
-export default { namespaced: true, state, getters, mutations, actions };
+  export default { namespaced: true, state, getters, mutations, actions };

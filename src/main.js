@@ -9,6 +9,16 @@ import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
+// VuetifulBoard
+// import VuetifulBoard from 'vuetiful-board';
+// Vue.use(VuetifulBoard);
+
+
+// ApexCharts
+import VueApexCharts from 'vue-apexcharts';
+Vue.use(VueApexCharts);
+Vue.component('apexchart', VueApexCharts);
+
 // Vuevalidate
 import Vuelidate from 'vuelidate';
 Vue.use(Vuelidate);
@@ -16,6 +26,7 @@ Vue.use(Vuelidate);
 // Axios
 import axios from 'axios';
 Vue.use(axios);
+
 
 Vue.config.productionTip = false;
 

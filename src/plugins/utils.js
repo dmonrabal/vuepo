@@ -35,7 +35,7 @@ exports.messages = {
   SENSOR_UPDATE_ERROR: 'Error al actualizar el sensor.',
   SENSOR_DELETE_ERROR: 'Error al eliminar el sensor.',
 
-  // Sensor messages
+  // User messages
   USER_CREATE_SUCCESS: 'Usuario creado con éxito.',
   USER_UPDATE_SUCCESS: 'Usuario actualizado con éxito',
   USER_DELETE_SUCCESS: 'Usuario eliminado con éxito',
@@ -43,6 +43,9 @@ exports.messages = {
   USER_CREATE_ERROR: 'Usuario al crear el sensor.',
   USER_UPDATE_ERROR: 'Usuario al actualizar el sensor.',
   USER_DELETE_ERROR: 'Usuario al eliminar el sensor.',
+
+  USER_IMGUPD_SUCCESS: 'Imagen actualizada con éxito.',
+  USER_IMGUPD_ERROR: 'Fallo al actualizar la imagen.',
 };
 
 exports.alert = (alert, type, message) => {

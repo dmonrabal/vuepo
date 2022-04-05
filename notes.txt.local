@@ -29,3 +29,88 @@ $ heroku git:remote -a vuepo
 
 Grid
 https://codepen.io/begueradj-the-sasster/pen/VOYObP?&editable=true&editors=101
+
+
+
+
+
+/// FIREBASE Rules
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth == null;
+    }
+  }
+}
+
+
+
+rules_version = '2';
+
+service firebase.storage {
+  match /{userEmail}/fotoPerfil {
+    	allow read;
+  		allow write: if request.auth != null && request.auth.token.email == userEmail && userEmail == request.auth.token.email;
+  }
+}
+
+
+
+
+
+// Esta regla ha funcionado
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read: if true; 
+      allow write: if request.auth!=null && request.auth.token.email == 'manager1@gmail.com';
+    }
+  }
+}
+
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{myEmail}/fotoPerfil {
+      allow read: if true; 
+      allow write: if request.auth!=null && request.auth.token.email == myEmail;
+    }
+  }
+}
+
+
+
+
+
+
+// TODO
+
+////////////////////////////////////////////
+                 USERS
+////////////////////////////////////////////
+
+
+Implement recover password.
+Split LogIn/SignUp in two views. Access to each view through a link.
+A Manager project was able to create users project.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
