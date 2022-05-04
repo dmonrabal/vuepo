@@ -4,22 +4,22 @@ import AppError from '@/plugins/appError';
 const state = () => ({
   devicesList: [],
   devicesGrpSelected: [],
-
   deviceSelected: '',
   sensorsList: [],
 });
 
 const getters = {};
+
 const mutations = {
+  setDeviceSelected(state, payload) {
+    state.deviceSelected = payload;
+  },
   setAllDevices(state, payload) {
     state.devicesList = payload;
   },
 
   setDevicesGroup(state, payload) {
     state.devicesGrpSelected = payload;
-  },
-  setDeviceSelected(state, payload) {
-    state.deviceSelected = payload;
   },
 };
 
@@ -179,35 +179,7 @@ const actions = {
     }
   },
 
-  async getData({ commit }, params) {
-    const token = params[0];
-    const APItoken = params[1];
-    const idDev = params[2];
-    const idsSen = params[3];
-
-    const config = {
-      headers: {
-        Authorization: `Bearer ${APItoken}`,
-      },
-      params: {
-        firstSample: params[4],
-        lastSample: params[5],
-      },
-    };
-    try {
-      const res = await vaxios.get(
-        `/data/device/${idDev}/sensors/${idsSen}`,
-        config
-      );
-      //console.log('getData RS: ', res);
-      return res;
-    } catch (err) {
-      console.log('Respuesta GET Data: ', err);
-      return { status: 'failed', message: err.message };
-    }
-  },
-
-  passDevicesPopulated({ commit }, devices ) {
+  passDevicesPopulated({ commit }, devices) {
     commit('setAllDevices', devices);
   },
 
@@ -219,5 +191,3 @@ const actions = {
 };
 
 export default { namespaced: true, state, getters, mutations, actions };
-
-

@@ -199,7 +199,7 @@
                     >
 
                     <v-list shaped class="mt-5">
-                      <v-list-item-group color="primary">
+                      <v-list-item-group v-model="editedSerie" color="primary">
                         <v-list-item
                           v-for="(serie, id) in seriesChart"
                           :key="id"
@@ -239,7 +239,7 @@
                         :items="proItems"
                         dense
                         label="Elige un proyecto"
-                        v-model="editedSerie.elements.project"
+                        v-model="proSel"
                         @input="loadGroups"
                         class="mt-5"
                       ></v-select>
@@ -248,7 +248,7 @@
                         :items="grpItems"
                         dense
                         label="Elige un grupo"
-                        v-model="editedSerie.elements.group"
+                        v-model="grpSel"
                         :disabled="grpDis"
                         @input="loadDevices"
                         class="mt-5"
@@ -257,7 +257,7 @@
                         :items="devItems"
                         dense
                         label="Elige un dispositivo"
-                        v-model="editedSerie.elements.device"
+                        v-model="devSel"
                         :disabled="devDis"
                         @input="loadSensors"
                         class="mt-5"
@@ -267,26 +267,26 @@
                         dense
                         label="Elige los sensores"
                         chips
-                        v-model="editedSerie.elements.sensor"
+                        v-model="senSel"
                         :disabled="devDis"
                         class="mt-5"
                       >
                       </v-select>
                       <v-text-field
                         label="Nombre de la serie"
-                        v-model="editedSerie.name"
+                        v-model="namSel"
                         :rules="rules.name"
-                        :disabled="editedSerie.elements.sensor === ''"
+                        :disabled="senSel === ''"
                         required
                       ></v-text-field>
                       <span
-                        v-if="editedSerie.name !== ''"
+                        v-if="namSel !== ''"
                         class="mt-10 text-h7 font-weight-light"
                         >Color de la serie
                       </span>
                       <v-color-picker
-                        v-if="editedSerie.name !== ''"
-                        v-model="editedSerie.color"
+                        v-if="namSel !== ''"
+                        v-model="colSel"
                         class="ma-2"
                         hide-canvas
                       ></v-color-picker>
@@ -296,8 +296,8 @@
                           icon
                           color="success"
                           @click="addSerie()"
-                          :disabled="editedSerie.elements.sensor === ''"
-                          v-if="!editSerieMode"
+                          :disabled="senSel === ''"
+                          v-if="this.editSerieMode === false"
                         >
                           <v-icon>mdi-plus-thick</v-icon>
                         </v-btn>
@@ -305,8 +305,8 @@
                           icon
                           color="success"
                           @click="updateSerie()"
-                          :disabled="editedSerie.elements.sensor === ''"
-                          v-if="editSerieMode"
+                          :disabled="senSel === ''"
+                          v-if="this.editSerieMode"
                         >
                           <v-icon>mdi-check</v-icon>
                         </v-btn>
@@ -326,7 +326,7 @@
               <v-btn
                 color="blue darken-1"
                 text
-                @click="save()"
+                @click="save"
                 :disabled="!isFormValid"
               >
                 Save
@@ -357,21 +357,19 @@
 </template>
 <script>
 import Title from '@/components/Title';
-import utils from '@/plugins/utils';
 import Loading from '@/components/Loading';
 import VueApexCharts from 'vue-apexcharts';
 import ApexCharts from 'apexcharts';
 import { mapState, mapActions } from 'vuex';
-import moment from 'moment';
 
 export default {
   name: 'Dashboard',
-  mounted: function () {
-    window.setInterval(() => {
-      this.reloadCharts();
-      //this.timeSeries();
-    }, 60000);
-  },
+  // mounted: function () {
+  //   window.setInterval(() => {
+  //     //this.reloadCharts();
+  //     this.timeSeries();
+  //   }, 15000);
+  // },
 
   data() {
     return {
@@ -406,25 +404,13 @@ export default {
         id: '',
         name: '',
         color: '',
-        data: [],
+        data: '', 
         elements: {
           project: '',
           group: '',
           device: '',
-          sensor: '',
-        },
-      },
-      defaultSerie: {
-        id: '',
-        name: '',
-        color: '',
-        data: [],
-        elements: {
-          project: '',
-          group: '',
-          device: '',
-          sensor: '',
-        },
+          sensor: ''
+        }
       },
 
       // Rules from
@@ -442,8 +428,16 @@ export default {
       devItems: [],
       senItems: [],
       datItems: [],
+      // dateReq: [],
 
+      proSel: '',
+      grpSel: '',
+      devSel: '',
+      senSel: '',
+      namSel: '',
+      colSel: '',
       menu: false,
+
       grpDis: true,
       devDis: true,
       senDis: true,
@@ -542,100 +536,85 @@ export default {
     },
 
     async reloadCharts() {
-      const charts = this.charts.chartList.filter((chart) => {
-        return chart.period !== 3;
-      });
-
-      await Promise.all(
-        charts.map(async (chart) => {
-          console.log('Calling Charts [CHART]');
-          chart.series.map(async (serie) => {
-            serie.data = [];
-            console.log('Calling Charts [SERIE]');
-
-            // TODO get APITOKEN from device
-            let params = ['xytVxvDJSD7Qqse1VOKdd'];
-            params.push(serie.elements.device);
-            params.push(serie.elements.sensor);
-            params.push(chart.dateReq[0]);
-            params.push(chart.dateReq[1]);
-
-            const dta = await this.getData(params);
-            //console.log('RESSSSS -> ', dta);
-
-            if (dta.series.length > 0) {
-              //console.log('EO: ', dta.series);
-              // Only check first serie
-              const ds = dta.series[0];
-              ds.samples.forEach((s) => {
-                serie.data.push({
-                  x: utils.formatDate(new Date(s.date)),
-                  y: s.value,
-                });
-              });
-            }
-            //chart.series.push(serie);
-            //console.log('SERIE DATA: ', serie.data);
-            ApexCharts.exec(serie.id, 'updateSeries', [{ data: serie.data }]);
-          });
-        })
-      );
+      // // //console.log('HEELLLOOOOOO');
+      // // const charts = this.charts.chartList.filter((chart) => {
+      // //   return chart.period !== 3;
+      // // });
+      // // charts.forEach((chart) => {
+      // //   // Populate data series
+      // //   await Promise.all(
+      // //     chart.series.map(async (serie) => {
+      // //       serie.data = [];
+      // //       // TODO get APITOKEN from device
+      // //       let params = ['xytVxvDJSD7Qqse1VOKdd'];
+      // //       params.push(serie.elements.device);
+      // //       params.push(serie.elements.sensor);
+      // //       params.push(dateFrom);
+      // //       params.push(dateTo);
+      // //       const dta = await this.getData(params);
+      // //       console.log('RESSSSS -> ', dta);
+      // //       if (dta.series.length > 0) {
+      // //         console.log('EO: ', dta.series);
+      // //         // Only check first serie
+      // //         const ds = dta.series[0];
+      // //         ds.samples.forEach((s) => {
+      // //           serie.data.push({ x: s.date, y: s.value });
+      // //         });
+      // //       }
+      // //       chart.series.push(serie);
+      // //     })
+      // //   );
+      // });
     },
 
     addSerie() {
-      this.editedSerie.id = 'id' + Math.random().toString(16).slice(2);
-      this.editedSerie.data = [];
-      this.seriesChart.push(this.editedSerie);
-      //console.log('Llamando a addSerie: ', this.seriesChart);
+      let nserie = {};
+      nserie.id = 'id' + Math.random().toString(16).slice(2);
+      nserie.name = this.namSel;
+      nserie.color = this.colSel;
+      nserie.elements = {
+        project: this.proSel,
+        group: this.grpSel,
+        device: this.devSel,
+        sensor: this.senSel,
+      };
+
+      this.seriesChart.push(nserie);
+      console.log('Llamando a addSerie: ', this.seriesChart);
       this.closeMenuSeries();
     },
 
     updateSerie() {
       console.log('[UpdateSerie]', this.editedSerie);
-
-      this.seriesChart = this.seriesChart.map((serie) => {
-        if (serie.id === this.editedSerie.id) {
+      this.seriesChart.forEach((s) => {
+        if (this.editedSerie.id === s.id) {
           console.log('Localizado');
-          serie.name = this.editedSerie.name;
-          serie.color = this.editedSerie.color;
-          serie.elements = this.editedSerie.elements;
+          s = this.editedSerie;
+          return;
         }
-        return serie;
       });
-      console.log(
-        'Esta es la serie actualizada: ',
-        this.seriesChart,
-        ', editedSerie: ',
-        this.editedSerie
-      );
-      this.closeMenuSeries();
-    },
+  },
 
     async loadSerie(serie) {
-      //TODO
-
-      this.editedSerie.id = serie.id;
-      console.log('editedSerie: ', this.editedSerie);
-      const rsp = await this.loadProjects();
-      this.editedSerie.elements.project = serie.elements.project;
-
+      // TODO
+      console.log('Esta es la serie: ', serie);
       this.grpDis = false;
-      const rsg = await this.loadGroups();
-      this.editedSerie.elements.group = serie.elements.group;
-
       this.devDis = false;
-      const rsd = await this.loadDevices();
-      this.editedSerie.elements.device = serie.elements.device;
-
       this.senDis = false;
-      const rss = await this.loadSensors();
-      this.editedSerie.elements.sensor = serie.elements.sensor;
-
-      this.editedSerie.name = serie.name;
-      this.editedSerie.color = serie.color;
+      this.proSel = serie.elements.project;
+      this.grpSel = serie.elements.group;
+      this.devSel = serie.elements.device;
+      this.namSel = serie.name;
+      this.colSel = serie.color;
       this.menuCharts = true;
       this.editSerieMode = true;
+      this.editedSerie = serie;
+      this.loadGroups();
+      const rs = await this.loadDevices();
+      const rss = await this.loadSensors();
+      this.senSel = serie.elements.sensor;
 
+      this.editedSerie = Object.assign({}, serie);
       //this.closeMenuSeries();
     },
 
@@ -648,16 +627,14 @@ export default {
     },
 
     closeMenuSeries() {
+      this.proSel = '';
+      this.grpSel = '';
+      this.devSel = '';
+      this.senSel = '';
+      this.namSel = '';
+      this.colSel = '';
       this.menuCharts = false;
       this.editSerieMode = false;
-      this.editedSerie = Object.assign({}, this.defaultSerie);
-      this.editedSerie.elements = Object.assign({}, this.defaultSerie.elements);
-      console.log(
-        'Llamando a closeMenuSeries: ',
-        this.editedSerie,
-        ', defaultSerie: ',
-        this.defaultSerie
-      );
     },
 
     editChart(item) {
@@ -713,18 +690,8 @@ export default {
       chart.period = this.editedChart.period;
       chart.options = {
         chart: {
-          id: chart.id,
-         },
-        // xaxis: {
-        //   type: 'datetime',
-        //   labels: {
-        //     rotate: -15,
-        //     rotateAlways: true,
-        //     // formatter: function(val, timestamp) {
-        //     //       return moment(new Date(timestamp)).format("l")
-        //     // }
-        //   },
-        // },
+          id: 'vuechart-example',
+        },
         stroke: {
           curve: 'smooth',
         },
@@ -751,17 +718,94 @@ export default {
           params.push(chart.dateReq[1]);
 
           const dta = await this.getData(params);
-          // console.log('RESSSSS -> ', dta);
+         // console.log('RESSSSS -> ', dta);
           if (dta.series.length > 0) {
-            // console.log('EO: ', dta.series);
+           // console.log('EO: ', dta.series);
             // Only check first serie
             const ds = dta.series[0];
             ds.samples.forEach((s) => {
-              serie.data.push({
-                //x: new Date(s.date).getTime(),
-                x: utils.formatDate(new Date(s.date)),
-                y: s.value,
-              });
+              serie.data.push({ x: s.date, y: s.value });
+            });
+          }
+          chart.series.push(serie);
+        })
+      );
+
+      //console.log('Chart enviado ', chart);
+      this.$store.dispatch('charts/addChart', chart);
+    },
+
+    async createChart2() {
+      // First create a series data
+      let chart = {};
+      chart.id = 'id' + Math.random().toString(16).slice(2);
+      chart.type = this.editedChart.type;
+      chart.dateReq = ['', ''];
+      chart.period = this.editedChart.period;
+      chart.options = {
+        chart: {
+          id: 'vuechart-example',
+        },
+        stroke: {
+          curve: 'smooth',
+        },
+        markers: {
+          size: 2,
+        },
+      };
+
+      let dateFrom = '';
+      let dateTo = '';
+      let dateOffsetDay = 24 * 60 * 60 * 1000;
+      console.log(this.editedChart.period);
+
+      if (this.editedChart.period === '3') {
+        dateFrom = this.editedChart.dateReq[0];
+        dateTo = this.editedChart.dateReq[1];
+        //chart.period = '3';
+        chart.dateReq[0] = dateFrom;
+        chart.dateReq[1] = dateTo;
+      } else if (this.editedChart.period === '2') {
+        // From 1 week ago
+        dateOffsetDay *= 7;
+        dateFrom = new Date();
+        dateFrom.setTime(dateFrom.getTime() - dateOffsetDay);
+        dateTo = '';
+        //chart.period = '2';
+      } else if (this.editedChart.period === '1') {
+        // Last 24 hours
+        //chart.period = '1';
+        dateFrom = new Date();
+        dateFrom.setTime(dateFrom.getTime() - dateOffsetDay);
+        dateTo = '';
+      } else {
+        //chart.period = '0';
+        // 0 Last 24H by default with no dates specified
+        // Nothing to do
+      }
+
+      console.log('Las fechas FROM-TO: ', dateFrom, ' ', dateTo);
+
+      // Populate data series
+      chart.series = [];
+      await Promise.all(
+        this.seriesChart.map(async (serie) => {
+          serie.data = [];
+          // TODO get APITOKEN from device
+          let params = ['xytVxvDJSD7Qqse1VOKdd'];
+          params.push(serie.elements.device);
+          params.push(serie.elements.sensor);
+          params.push(dateFrom);
+          params.push(dateTo);
+
+          const dta = await this.getData(params);
+          console.log('RESSSSS -> ', dta);
+          if (dta.series.length > 0) {
+            console.log('EO: ', dta.series);
+            // Only check first serie
+            const ds = dta.series[0];
+            ds.samples.forEach((s) => {
+              serie.data.push({ x: s.date, y: s.value });
             });
           }
           chart.series.push(serie);
@@ -850,7 +894,7 @@ export default {
       this.devItems = [];
 
       this.projects.projectList.forEach((p) => {
-        if (p._id === this.editedSerie.elements.project) {
+        if (p._id === this.proSel) {
           this.grpItems = p.groups.map((g) => {
             return { text: g.name, value: g._id };
           });
@@ -866,8 +910,8 @@ export default {
 
       try {
         let params = [this.users.user.token];
-        params.push(this.editedSerie.elements.project);
-        params.push(this.editedSerie.elements.group);
+        params.push(this.proSel);
+        params.push(this.grpSel);
         const res = await this.$store.dispatch(
           'devices/getDevicesGroup',
           params
@@ -890,15 +934,15 @@ export default {
     },
 
     async loadSensors() {
-      this.editedSerie.elements.sensor = '';
+      this.senSel = '';
       this.senDis = false;
       this.btnDis = true;
 
       try {
         let params = [this.users.user.token];
-        params.push(this.editedSerie.elements.project);
-        params.push(this.editedSerie.elements.group);
-        params.push(this.editedSerie.elements.device);
+        params.push(this.proSel);
+        params.push(this.grpSel);
+        params.push(this.devSel);
         const res = await this.$store.dispatch('devices/getDevice', params);
         if (res.data.device.sensors) {
           this.senItems = res.data.device.sensors.map((s) => {

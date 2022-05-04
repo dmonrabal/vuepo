@@ -111,16 +111,6 @@
             fas fa-file-pdf
           </v-icon>
         </v-col>
-        <!-- <v-btn
-          class="ma-2 text-capitalize font-weight-light"
-          color="primary"
-          dark
-          width="50%"
-          :disabled="btnDis"
-          @click="loadocPDFData"
-        >
-          <i class="far fa-file-pdf"></i>
-        </v-btn> -->
       </v-row>
       <v-row>
         <v-col cols="12">
