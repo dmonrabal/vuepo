@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
+    "postinstall": "npm run build",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
@@ -13,6 +14,7 @@
     "apexcharts": "^3.34.0",
     "axios": "^0.24.0",
     "core-js": "^3.6.5",
+    "express": "^4.18.1",
     "firebase": "^8.7.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.23",
@@ -20,6 +22,7 @@
     "material-design-icons-iconfont": "6.1.0",
     "moment": "^2.29.3",
     "roboto-fontface": "*",
+    "serve-static": "^1.15.0",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.6.2",
     "vue-mapbox": "^0.4.1",
