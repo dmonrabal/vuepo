@@ -183,6 +183,36 @@ const actions = {
     commit('setAllDevices', devices);
   },
 
+  async getData({ commit }, params) {
+    const token = params[0];
+    const idDev = params[1];
+    const idsSen = params[2];
+    //const paramsURL = params[3];
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        firstSample: params[3],
+        lastSample: params[4],
+      },
+    };
+
+    try {
+      console.log('PARAMS enviados: ', params);
+      const res = await vaxios.get(
+        `/data/device/${idDev}/sensors/${idsSen}`,
+        config
+      );
+      console.log('Respuesta Data: ', res);
+      return res;
+    } catch (err) {
+      console.log('Respuesta GET Data: ', err);
+      return { status: 'failed', message: err.message };
+    }
+  },
+
   eraseAllData({ commit, state }) {
     commit('setAllDevices', []);
     commit('setDevicesGroup', []);

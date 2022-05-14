@@ -314,8 +314,8 @@ export default {
       this.buildHeaders();
 
       // TODO change token handling
-      let params = [this.users.user.token];
-      params.push('xytVxvDJSD7Qqse1VOKdd');
+      let params = ['xytVxvDJSD7Qqse1VOKdd'];
+      //params.push('xytVxvDJSD7Qqse1VOKdd');
       params.push(this.devSel);
       params.push(this.senSel.join(','));
       params.push(this.dateReq[0]);

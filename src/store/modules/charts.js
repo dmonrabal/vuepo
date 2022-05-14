@@ -21,8 +21,8 @@ const actions = {
   /**
    * Checks first if chart object exists (update chart)
    * If not we push new chart on list
-   * @param {*} param0 
-   * @param {*} chart 
+   * @param {*} param0
+   * @param {*} chart
    */
   addChart({ commit, state }, chart) {
     //console.log('Passing chart: ', chart);
@@ -50,13 +50,13 @@ const actions = {
   // },
 
   /**
-       *  Pass object to query for data
-       *  apiToken  params[0] Not passed
-       *  idDevice  params[1]
-       *  idSensor  params[2]
-       *  dateFrom  params[3] Can be null
-       *  dateTo    params[4] Can be null
-       */
+   *  Pass object to query for data
+   *  apiToken  params[0] Not passed
+   *  idDevice  params[1]
+   *  idSensor  params[2]
+   *  dateFrom  params[3] Can be null
+   *  dateTo    params[4] Can be null
+   */
   async getData({ commit }, params) {
     const APItoken = params[0];
     const idDev = params[1];
