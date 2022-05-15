@@ -91,24 +91,37 @@ service firebase.storage {
 ////////////////////////////////////////////
                  USERS
 ////////////////////////////////////////////
-
-
 Implement recover password.
 Split LogIn/SignUp in two views. Access to each view through a link.
 A Manager project was able to create users project.
 
+////////////////////////////////////////////
+                 API
+////////////////////////////////////////////
+Add recover/modify API token not use token in code
+
+
+////////////////////////////////////////////
+                 DASHBOARD
+////////////////////////////////////////////
+Improve quality of charts
+Resolve problem Nan
+Resolve problem when data charts disappear of card
+Save values on firebase
+
+
+////////////////////////////////////////////
+                 STATISTICS
+////////////////////////////////////////////
 
 
 
 
+Refactoring code
 
+getData method is duplicated in devices and chart modules store
 
-
-
-
-
-
-
+populateProGrp is a method duplicated in Devices and Map views
 
 
 

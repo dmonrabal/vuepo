@@ -12,8 +12,9 @@ import Group from '../views/Group';
 import Devices from '../views/Devices';
 import Device from '../views/Device';
 import User from '../views/User';
-
 import Data from '../views/Data';
+import Mapa from '../views/Mapa';
+
 // Only for test purpose
 import Grid from '../views/Grid';
 Vue.use(VueRouter);
@@ -92,6 +93,14 @@ const routes = [
     path: '/datos',
     name: 'Data',
     component: Data,
+    meta: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: '/mapa',
+    name: 'Mapa',
+    component: Mapa,
     meta: {
       requireAuth: true,
     },

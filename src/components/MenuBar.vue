@@ -110,7 +110,7 @@ export default {
       drawer: true,
       items: [
         { title: 'Inicio', icon: 'fas fa-home', to: {name:'/'} },
-        { title: 'Dashboard', icon: 'fas fa-tachometer-alt', to: {name:'dashboard'} },
+        { title: 'Dashboard', icon: 'fas fa-tachometer-alt', to: {name:'/dashboard'} },
       ],
       structure: [
       { title: 'Proyectos', icon: 'fas fa-pencil-ruler', to: {name:'/proyectos'}},
@@ -119,9 +119,9 @@ export default {
       { title: 'Sensores', icon: 'fas fa-temperature-high', to: {name:'/grupos'} }],
 
       data: [
-         { title:  'Datos', icon: 'fas fa-database', to: {name:'/datos'} },
-         { title: 'Mapa', icon: 'fas fa-map-marker-alt', to: {name:'/mapa'} },
-         { title: 'Estadisticas', icon: 'fas fa-chart-bar', to: {name:'/estadisticas'} },
+        { title: 'Datos', icon: 'fas fa-database', to: {name:'/datos'} },
+        { title: 'Mapa', icon: 'fas fa-map-marker-alt', to: {name:'/mapa'} },
+        { title: 'Estadisticas', icon: 'fas fa-chart-bar', to: {name:'/estadisticas'} },
       ],
       admin: [
            { title: 'Usuario', icon: 'fas fa-user', to: {name:'/usuario'} },
