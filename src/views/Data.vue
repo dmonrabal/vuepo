@@ -128,8 +128,7 @@
           </v-data-table>
         </v-col>
       </v-row>
-      <v-row>
-      </v-row>
+      <v-row> </v-row>
     </v-card>
   </div>
 </template>

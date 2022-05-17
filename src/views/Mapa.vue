@@ -7,7 +7,7 @@
       :path="`Home / Mapa /`"
     ></Title>
     <v-row>
-      <v-col cols="9">
+      <v-col cols="12" lg="9">
         <MglMap
           :accessToken="accessToken"
           :mapStyle="mapStyle"
@@ -24,8 +24,54 @@
           <!--MglMarker :coordinates.sync="coordinates" color="blue" /-->
         </MglMap>
       </v-col>
-      <v-col cols="3">
-        <v-card class="pa-5 mb-2" outlined tile height="800"> sfsd </v-card>
+      <v-col cols="12" lg="3">
+        <v-card class="pa-10 mb-2" outlined tile height="800">
+          <v-row>
+            <v-col cols="12"
+              ><v-select
+                :items="proItems"
+                dense
+                label="Elige un proyecto"
+                v-model="proSel"
+                @input="loadGroups"
+                class="mt-5"
+              ></v-select>
+            </v-col>
+            <v-col cols="12">
+              <v-select
+                ref="grpMenu"
+                :items="grpItems"
+                dense
+                label="Elige un grupo"
+                v-model="grpSel"
+                :disabled="grpDis"
+                @input="loadDevices"
+              ></v-select>
+            </v-col>
+            <v-col cols="12">
+              <v-select
+                :items="devItems"
+                dense
+                label="Elige un dispositivo"
+                v-model="devSel"
+                :disabled="devDis"
+                @click="enableFilter"
+              ></v-select>
+            </v-col>
+            <v-col cols="12">
+              <v-btn
+                class="ma-2 text-capitalize font-weight-light"
+                color="primary"
+                dark
+                width="30%"
+                :disabled="btnDis"
+                @click="filterDevices"
+              >
+                Filtrar
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -44,8 +90,29 @@ export default {
     return {
       cargando: false,
       accessToken: process.env.VUE_APP_MAPBOX_TOKEN,
-      mapStyle: 'mapbox://styles/mapbox/light-v10',
+      mapStyle: 'mapbox://styles/mapbox/satellite-v9',
       coordinates: [2.9862918733796486, 39.57380640335257],
+
+      devFiltr: [],
+      proItems: [],
+      grpItems: [],
+      devItems: [],
+      senItems: [],
+      datItems: [],
+      dateReq: [],
+
+      menu: false,
+
+      proSel: '',
+      grpSel: '',
+      devSel: '',
+      senSel: '',
+
+      grpDis: true,
+      devDis: true,
+      btnDis: true,
+      
+      showTable: false,
     };
   },
   components: {
@@ -55,9 +122,15 @@ export default {
     MglMarker,
   },
   computed: {
-    ...mapState(['projects', 'users', 'devices']),
+    ...mapState(['projects', 'groups', 'users', 'devices']),
   },
   methods: {
+
+    enableFilter() {
+      this.btnDis = false;
+      console.log('Pulsado!!!!!');
+    },
+
     /**
      * This method is used for get group info in devices objects.
      * By default, each device only contains _id group field.
@@ -91,7 +164,23 @@ export default {
       this.$store.dispatch('devices/passDevicesPopulated', ldevPop);
     },
 
-    async loadDevices() {
+    async loadProjects() {
+      try {
+        const token = this.users.user.token;
+        const res = await this.$store.dispatch('projects/getProjects', token);
+        if (res.data.projects) {
+          this.proItems = res.data.projects.map((p) => {
+            return { text: p.name, value: p._id };
+          });
+        }
+        //console.log('RESPUESTA: ', res);
+        return res;
+      } catch (err) {
+        console.log('[ERROR] - loadProjects: ' + err.message);
+      }
+    },
+
+    async loadAllDevices() {
       try {
         const token = this.users.user.token;
         let ids = this.projects.projectList.map((project) => project._id);
@@ -102,6 +191,70 @@ export default {
         console.log('[ERROR] - LoadDevices: ' + e.message);
       }
     },
+
+    async loadProjects() {
+      try {
+        const token = this.users.user.token;
+        const res = await this.$store.dispatch('projects/getProjects', token);
+        if (res.data.projects) {
+          this.proItems = res.data.projects.map((p) => {
+            return { text: p.name, value: p._id };
+          });
+        }
+        //console.log('RESPUESTA: ', res);
+        return res;
+      } catch (err) {
+        console.log('[ERROR] - loadProjects: ' + err.message);
+      }
+    },
+
+    loadGroups() {
+      this.grpDis = false;
+      this.devDis = true;
+      this.btnDis = true;
+      this.grpItems = [];
+      this.devItems = [];
+
+      //console.log('Project id selected: ', this.proSel);
+      this.projects.projectList.forEach((p) => {
+        if (p._id === this.proSel) {
+          this.grpItems = p.groups.map((g) => {
+            return { text: g.name, value: g._id };
+          });
+        }
+      });
+    },
+
+    async loadDevices() {
+      this.devDis = false;
+      this.btnDis = true;
+
+      try {
+        let params = [this.users.user.token];
+        params.push(this.proSel);
+        params.push(this.grpSel);
+        const res = await this.$store.dispatch(
+          'devices/getDevicesGroup',
+          params
+        );
+
+        //console.log('DEVICES: ', res, 'params: ', params);
+        if (res.data.devices) {
+          this.devItems = res.data.devices.map((d) => {
+            return { text: d.name, value: d._id };
+          });
+        }
+        return res;
+      } catch (err) {
+        console.log('[ERROR] - loadDevices: ' + err.message);
+      }
+    },
+
+    filterDevices() {
+      console.log("Filtrar!!!!");
+    
+    },
+
 
     loadCoordinates() {
       const defCoor = [2.9862918733796486, 39.57380640335257];
@@ -124,8 +277,9 @@ export default {
     },
   },
 
-  created() {
-    this.loadDevices();
+  async created() {
+    await this.loadProjects();
+    this.loadAllDevices();
     this.loadCoordinates();
     this.mapbox = Mapbox;
   },
