@@ -61,6 +61,7 @@ const actions = {
     } catch (err) {
       return { status: 'failed', message: err.message };
     }
+    console.log('DEVICES LOADED: ', allDevs);
     commit('setAllDevices', allDevs);
   },
 

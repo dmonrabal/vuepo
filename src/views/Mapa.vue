@@ -21,11 +21,17 @@
             :key="device._id"
           >
             <MglPopup anchor="bottom-right">
-              <v-card outlined width="200" height="80">
+              <v-card outlined width="200" height="120">
                 Project: {{ device.project.name }} Group:{{
                   device.group.name
                 }}
                 Device: {{ device.label }}
+                <p class="text-overline">
+                  LAST ENTRY
+                </p>
+                <span class="text-overline font-weight-light">
+                  {{ device.lastEntry }}
+                </span>
                 <v-icon
                   size="20"
                   class="ml-5 mt-2"
@@ -96,12 +102,12 @@
             >
             <v-divider></v-divider>
 
-            <div v-if="!devDetail">
+            <div v-if="!devLoaded">
               <v-card-subtitle class="ml-5 pa-2 font-weight-light">
                 Ningún dispositivo seleccionado
               </v-card-subtitle>
             </div>
-            <div v-if="devDetail">
+            <div v-if="devLoaded">
               <v-list dense>
                 <v-list-item
                   v-for="(sensor, _id) in devDetail.sensors"
@@ -114,51 +120,15 @@
                     <v-list-item-subtitle
                       class="text-h6 font-weight-light grey--text ml-8 mt-2"
                     >
-                      22 {{ sensor.symbol }}
+                      <span v-if="!sensor.lastEntry"> - </span>
+                      <span v-else>
+                        {{ sensor.lastEntry }}
+                      </span>
+                      {{ sensor.symbol }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
-
-              <!-- <v-list-item three-line>
-                <v-list-item-content>
-                  <div class="text-overline mb-4">{{ devDetail.name }}</div>
-                  <v-list-item-title class="text-h6 mb-1">
-                    {{ devDetail.label }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>{{
-                    devDetail.description
-                  }}</v-list-item-subtitle>
-                </v-list-item-content>
-
-                <v-icon size="50">fas fa-plus</v-icon>
-              </v-list-item>
-              <v-list-item three-line>
-                <v-list-item-content>
-                  <div class="text-overline">{{ devDetail.name }}</div>
-                  <div class="text-subtitle-1">{{ devDetail.name }}</div>
-                  <v-list-item-title class="text-subtitle-1 mb-1">
-                    {{ devDetail.label }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>{{
-                    devDetail.description
-                  }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item> -->
-              <!--               
-              <v-card-title class="text-subtitle-1 grey--text">
-                Nombre
-              {{ devDetail.name }}
-              </v-card-title>
-              <v-card-title class="text-subtitle-1 grey--text">
-                Etiqueta
-              </v-card-title>
-              <v-card-title class="text-subtitle-1 grey--text">
-                Tecnología
-              </v-card-title>
-
-              {{ devDetail.label }}
-              {{ devDetail.technology }} -->
             </div>
           </v-row>
         </v-card>
@@ -183,6 +153,7 @@ export default {
       mapStyle: 'mapbox://styles/mapbox/satellite-v9',
       coordinates: [2.9862918733796486, 39.57380640335257],
       devDetail: '',
+      devLoaded: false,
 
       devInit: [],
       devFiltr: [],
@@ -372,7 +343,6 @@ export default {
         this.devFiltr = this.devFiltr.filter((device) => {
           //console.log('-------> Project filtered: ', device.project._id);
           if (device.project._id === this.proSel) {
-            console.log('Project found: ', device.project._id);
             return true;
           } else {
             return false;
@@ -383,7 +353,6 @@ export default {
           this.devFiltr = this.devFiltr.filter((device) => {
             //console.log('-------> Group filtered: ', device.group._id);
             if (device.group._id === this.grpSel) {
-              console.log('Group found: ', device.group._id);
               return true;
             } else {
               return false;
@@ -394,7 +363,6 @@ export default {
             this.devFiltr = this.devFiltr.filter((device) => {
               //console.log('-------> Device filtered: ', device._id);
               if (device._id === this.devSel) {
-                console.log('Device found: ', device._id);
                 return true;
               } else {
                 return false;
@@ -434,14 +402,47 @@ export default {
       });
     },
 
-    viewInfo(device) {
+    async viewInfo(device) {
+      this.devLoaded = false;
       this.devDetail = device;
+      let params = ['xytVxvDJSD7Qqse1VOKdd'];
+      params.push(this.devDetail._id);
+      let senList = this.devDetail.sensors.map((sensor) => {
+        return sensor._id;
+      });
+      params.push(senList.join(','));
+      if (this.devDetail.lastEntry) {
+        params.push(new Date(new Date(this.devDetail.lastEntry) - 60 * 1000));
+      }
+
+      try {
+        const res = await this.$store.dispatch('devices/getData', params);
+        if (res.series) {
+          res.series.forEach((serie) => {
+            console.log('SERIE: ', serie);
+            let idSen = serie.sensor;
+            if (serie.samples) {
+              let value = serie.samples[serie.samples.length - 1].value;
+              this.devDetail.sensors.forEach((sensor) => {
+                if (sensor._id === idSen) {
+                  console.log('------> anadido: ', value);
+                  sensor.lastEntry = value ? value : '-';
+                }
+              });
+            }
+          });
+        }
+        console.log('--->', this.devDetail);
+      } catch (err) {
+        console.log('[ERROR] - getLastData: ' + err.message);
+      }
+      this.devLoaded = true;
     },
   },
 
   async created() {
     await this.loadProjects();
-    this.loadAllDevices();
+    await this.loadAllDevices();
     this.loadCoordinates();
     this.mapbox = Mapbox;
   },

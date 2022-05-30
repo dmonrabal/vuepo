@@ -105,6 +105,26 @@
                 }}</span>
               </v-card>
             </v-col>
+            <v-col cols="6" sm="4">
+              <v-card-text
+                class="secondary--text font-weight-light"
+                background-color="light-blue"
+              >
+                Última entrada
+              </v-card-text>
+
+              <v-card
+                class="d-flex flex-row ml-5 align-center"
+                color="suave"
+                flat
+                height="50"
+                tile
+              >
+                <span class="ml-2">{{
+                  devices.deviceSelected.lastEntry
+                }}</span>
+              </v-card>
+            </v-col>
           </v-row>
         </v-col>
 
