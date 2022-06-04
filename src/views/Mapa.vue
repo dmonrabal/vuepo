@@ -21,26 +21,26 @@
             :key="device._id"
           >
             <MglPopup anchor="bottom-right">
-              <v-card outlined width="200" height="120">
-                Project: {{ device.project.name }} Group:{{
-                  device.group.name
-                }}
-                Device: {{ device.label }}
-                <p class="text-overline">
-                  LAST ENTRY
-                </p>
-                <span class="text-overline font-weight-light">
-                  {{ device.lastEntry }}
-                </span>
-                <v-icon
-                  size="20"
-                  class="ml-5 mt-2"
-                  color="primary"
-                  @click="viewInfo(device)"
-                  title="Consultar"
-                >
-                  fas fa-search
-                </v-icon>
+              <v-card outlined width="250" height="120">
+                <!-- <v-card-title class="text-h6 font-weight-light">
+                  {{ device.label }}
+                </v-card-title> -->
+                <v-card-text>
+                  <div>{{ device.project.name }}</div>
+                  <div>{{ device.group.name }}</div>
+                  <div class="text-overline">{{ device.label }}</div>
+                  <div>
+                    <v-icon
+                      size="20"
+                      class="ml-25"
+                      color="primary"
+                      @click="viewInfo(device)"
+                      title="Consultar"
+                    >
+                      fas fa-search
+                    </v-icon>
+                  </div>
+                </v-card-text>
               </v-card>
             </MglPopup>
           </MglMarker>
@@ -120,15 +120,18 @@
                     <v-list-item-subtitle
                       class="text-h6 font-weight-light grey--text ml-8 mt-2"
                     >
-                      <span v-if="!sensor.lastEntry"> - </span>
+                      <span v-if="!devDetail.lastEntry"> - </span>
                       <span v-else>
-                        {{ sensor.lastEntry }}
+                        {{ sensor.lastData }}
                       </span>
                       {{ sensor.symbol }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
+              <div class="text-overline ml-2 font-weight-light grey--text">
+                <div>Updated at {{ devDetail.lastEntry }}</div>
+              </div>
             </div>
           </v-row>
         </v-card>
@@ -426,7 +429,7 @@ export default {
               this.devDetail.sensors.forEach((sensor) => {
                 if (sensor._id === idSen) {
                   console.log('------> anadido: ', value);
-                  sensor.lastEntry = value ? value : '-';
+                  sensor.lastData = value ? value : '-';
                 }
               });
             }

@@ -485,29 +485,55 @@ export default {
         markers: {
           size: 2,
         },
+        dataLabels: {
+          enabled: false,
+        },
+        xaxis: {
+          type: 'datetime',
+          //tickPlacement: 'between',
+          categories: [
+            '19 Jun 2017 02:30:00',
+            '19 Jun 2017 03:30:00',
+            '19 Jun 2017 04:30:00',
+            '19 Jun 2017 05:30:00',
+            '19 Jun 2017 06:30:00',
+            '19 Jun 2017 07:30:00',
+            '19 Jun 2017 08:30:00',
+          ],
+          axisTicks: {
+            show: false,
+          },
+          //tickAmount: 6,
+          // labels: {
+          //   format: 'dd/MM',
+          // },
+          // labels: {
+          // formatter: (val, opt) =>
+          //     moment.utc(val).format("DDMMMM hh:mm:ss")
+          // },
+          axisBorder: {
+            show: true,
+            borderType: 'dotted',
+          },
+          tooltip: {
+            enabled: false,
+          },
+          range: 7
+        },
+        tooltip: {
+          followCursor: true,
+          theme: 'dark',
+          x: { format: 'yyyy-MM-dd HH:mm:ss' },
+        },
       },
       seriesA: [
         {
           name: 'series-1',
-          data: [
-            { x: '2020-12-01T08:16:53.532Z', y: 54 },
-            { x: '2020-12-01T15:52:44.674Z', y: 17 },
-            { x: '2020-12-01T19:53:40.747Z', y: 13 },
-            { x: '2020-12-01T20:53:40.747Z', y: 17 },
-            { x: '2020-12-01T21:53:40.747Z', y: 30 },
-            { x: '2020-12-01T22:53:40.747Z', y: 26 },
-          ],
+          data: [31, 40, 28, 51, 42, 109, 100],
         },
         {
-          name: 'series-1',
-          data: [
-            { x: '2020-12-01T08:16:53.532Z', y: 54 },
-            { x: '2020-12-01T15:52:44.674Z', y: 17 },
-            { x: '2020-12-01T19:53:40.747Z', y: 13 },
-            { x: '2020-12-01T19:54:40.747Z', y: 13 },
-            { x: '2020-12-01T19:55:40.747Z', y: 13 },
-            { x: '2020-12-01T20:56:40.747Z', y: 17 },
-          ],
+          name: 'series-2',
+          data: [11, 32, 45, 32, 34, 52, 41],
         },
       ],
     };
@@ -714,19 +740,26 @@ export default {
       chart.options = {
         chart: {
           id: chart.id,
-         },
-        // xaxis: {
-        //   type: 'datetime',
-        //   labels: {
-        //     rotate: -15,
-        //     rotateAlways: true,
-        //     // formatter: function(val, timestamp) {
-        //     //       return moment(new Date(timestamp)).format("l")
-        //     // }
-        //   },
-        // },
+        },
+        dataLabels: {
+          enabled: false,
+        },
         stroke: {
           curve: 'smooth',
+        },
+        xaxis: {
+          type: 'datetime',
+          labels: {
+            //format: 'yyyy-MM-dd HH:mm:ss' ,
+            // formatter: function (timestamp) {
+            //   return moment(new Date(timestamp)).format('MM-YYYY');
+            // },
+          },
+        },
+        tooltip: {
+          followCursor: true,
+          theme: 'light',
+          x: { format: 'yyyy-MM-dd HH:mm:ss' },
         },
         markers: {
           size: 2,
