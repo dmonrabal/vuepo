@@ -12,7 +12,8 @@
           class="pa-4 text-center"
           max-width="420"
           max-height="400"
-          outlined tile
+          outlined
+          tile
         >
           <v-card-subtitle>
             <span class="font-weight-light text-h4">Proyectos</span>
@@ -44,7 +45,8 @@
           class="pa-4 text-center"
           max-width="420"
           max-height="400"
-          outlined tile
+          outlined
+          tile
         >
           <v-card-subtitle>
             <span class="font-weight-light text-h4">Grupos</span>
@@ -76,7 +78,8 @@
           class="pa-4 text-center"
           max-width="420"
           max-height="400"
-          outlined tile
+          outlined
+          tile
         >
           <v-card-subtitle>
             <span class="font-weight-light text-h4">Dispositivos</span>
@@ -107,7 +110,8 @@
           class="pa-4 text-center"
           max-width="420"
           max-height="400"
-          outlined tile
+          outlined
+          tile
         >
           <v-card-subtitle>
             <span class="font-weight-light text-h4">Sensores</span>
@@ -142,7 +146,8 @@
           class="pa-4 text-center"
           max-width="420"
           max-height="400"
-          outlined tile
+          outlined
+          tile
         >
           <v-card-subtitle>
             <span class="font-weight-light text-h4">Usuarios</span>
@@ -174,7 +179,8 @@
           class="pa-4 text-center mb-2"
           max-width="1320"
           height="400"
-          outlined tile
+          outlined
+          tile
         >
           <v-card-text>
             <v-icon class="mb-5" color="primary" size="200"
@@ -210,7 +216,7 @@ export default {
     Title,
   },
   computed: {
-    ...mapState(['projects', 'users']),
+    ...mapState(['projects', 'users', 'charts']),
   },
   methods: {
     async loadProjectStats() {
@@ -222,10 +228,21 @@ export default {
         console.log('[ERROR] - projects:LoadProjects: ' + err.message);
       }
     },
+
+    async loadChartList() {
+      try {
+        const res = await this.$store.dispatch('charts/getChartsFireBase');
+        console.log('RES DATA: ', res);
+        return res;
+      } catch (err) {
+        console.log('[ERROR] - getData', err.message);
+      }
+    }
   },
   created() {
     this.cargando = true;
     this.loadProjectStats();
+    this.loadChartList();
     this.cargando = false;
   },
 };

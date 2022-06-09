@@ -69,7 +69,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-    </v-row>
+  </v-row>
     <v-row class="flex-row-reverse">
       <v-dialog
         v-model="dialog"
@@ -503,14 +503,6 @@ export default {
           axisTicks: {
             show: false,
           },
-          //tickAmount: 6,
-          // labels: {
-          //   format: 'dd/MM',
-          // },
-          // labels: {
-          // formatter: (val, opt) =>
-          //     moment.utc(val).format("DDMMMM hh:mm:ss")
-          // },
           axisBorder: {
             show: true,
             borderType: 'dotted',
@@ -518,7 +510,7 @@ export default {
           tooltip: {
             enabled: false,
           },
-          range: 7
+          range: 7,
         },
         tooltip: {
           followCursor: true,
@@ -602,7 +594,7 @@ export default {
             }
             //chart.series.push(serie);
             //console.log('SERIE DATA: ', serie.data);
-            ApexCharts.exec(serie.id, 'updateSeries', [{ data: serie.data }]);
+            // ApexCharts.exec(serie.id, 'updateSeries', [{ data: serie.data }]);
           });
         })
       );
@@ -706,6 +698,9 @@ export default {
         'charts/deleteChart',
         this.editedChart
       );
+       // firebase store chart
+      this.uploadChartList();
+
       this.cargando = false;
       this.dialogDelete = false;
     },
@@ -803,6 +798,9 @@ export default {
 
       //console.log('Chart enviado ', chart);
       this.$store.dispatch('charts/addChart', chart);
+
+      // firebase store chart
+      this.uploadChartList();
     },
 
     calculateDates(period) {
@@ -829,6 +827,15 @@ export default {
       return dates;
     },
 
+    async getChartListFireBase() {
+      try {
+        const res = await this.$store.dispatch('charts/getChartsFireBase');
+        console.log('RES DATA: ', res);
+        return res;
+      } catch (err) {
+        console.log('[ERROR] - getData', err.message);
+      }
+    },
     /**
      *  Pass object to query for data
      *  apiToken  params[0]
@@ -942,6 +949,19 @@ export default {
         return res;
       } catch (err) {
         console.log('[ERROR] - loadDevices: ' + err.message);
+      }
+    },
+
+    /**
+     *  Uploads chartlist on firebase database
+     */
+    async uploadChartList() {
+      const params = [this.users.user.fireUID];
+      try {
+        const rs = this.$store.dispatch('charts/updateChartfireBase', params);
+        console.log('[uploadChartList] - ', rs);
+      } catch (err) {
+        console.log('[ERROR] - uploadChartList: ' + err.message);
       }
     },
   },

@@ -1,6 +1,7 @@
 import vaxios from '@/plugins/vaxios';
 import router from '@/router/index';
 import AppError from '@/plugins/appError';
+import { db } from '@/plugins/firebase';
 
 const state = () => ({
   chartList: [],
@@ -81,6 +82,40 @@ const actions = {
       console.log('Respuesta GET Data: ', err);
       return { status: 'failed', message: err.message };
     }
+  },
+
+  getChartsFireBase({ commit }) {
+    console.log('getChartsFireBase');
+
+    // v8
+    db.collection('charts')
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
+          //console.log(`${doc.id} => ${ JSON.stringify(doc)}`);
+          const data = doc.data();
+          if (data.chartlist) {
+            commit('setCharList', data.chartlist);
+          }
+        });
+      });
+  },
+
+  async updateChartfireBase({ commit, state }, params) {
+    const firebaseUID = params[0];
+    try {
+      const ref = db.collection('charts').doc(firebaseUID);
+      const obj = { chartlist: state.chartList };
+      console.log('DB: ', state.chartList);
+      const rs = await db.collection('charts').doc(firebaseUID).set(obj);
+    } catch (error) {
+      console.error('Error writing document: ', error);
+    }
+  },
+
+  eraseAllData({ commit }) {
+    commit('setCharList', []);
   },
 };
 
