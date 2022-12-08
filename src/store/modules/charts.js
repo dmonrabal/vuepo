@@ -14,41 +14,11 @@ const mutations = {
     state.chartList = payload;
   },
 };
+
 const actions = {
   passChartList({ commit }, clist) {
     commit('setChartList', clist);
   },
-
-  /**
-   * Checks first if chart object exists (update chart)
-   * If not we push new chart on list
-   * @param {*} param0
-   * @param {*} chart
-   */
-  addChart({ commit, state }, chart) {
-    //console.log('Passing chart: ', chart);
-    const index = state.chartList.findIndex((elem) => {
-      return elem.id === chart.id;
-    });
-
-    if (index > -1) {
-      //console.log('Este es el índice encontrado: ', index);
-      state.chartList[index] = chart;
-    } else {
-      state.chartList.push(chart);
-    }
-  },
-
-  deleteChart({ commit, state }, nchart) {
-    let nChartList = state.chartList.filter((chart) => {
-      return nchart.id !== chart.id;
-    });
-    commit('setCharList', nChartList);
-  },
-
-  // addSerie({ commit, state}, serie) {
-  //   this.chartList.series.push(serie);
-  // },
 
   /**
    *  Pass object to query for data
@@ -79,21 +49,18 @@ const actions = {
       );
       return res;
     } catch (err) {
-      console.log('Respuesta GET Data: ', err);
       return { status: 'failed', message: err.message };
     }
   },
 
+  /**
+   *  Get chartList from firestore
+   */
   getChartsFireBase({ commit }) {
-    console.log('getChartsFireBase');
-
-    // v8
     db.collection('charts')
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
-          //console.log(`${doc.id} => ${ JSON.stringify(doc)}`);
           const data = doc.data();
           if (data.chartlist) {
             commit('setCharList', data.chartlist);
@@ -101,16 +68,89 @@ const actions = {
         });
       });
   },
+  /**
+   * Checks first if chart object exists (update chart)
+   * If not we push new chart on list
+   * @param {*} param0
+   * @param {*} chart
+   */
+  async addChart({ dispatch, state }, params) {
+    //console.log('Passing chart: ', chart);
+    const chart = params[0];
+    const uidfb = params[1];
+    const index = state.chartList.findIndex((elem) => {
+      return elem.id === chart.id;
+    });
+
+    if (index > -1) {
+      //console.log('Este es el índice encontrado: ', index);
+      state.chartList[index] = chart;
+    } else {
+      state.chartList.push(chart);
+    }
+
+    try {
+      params = [uidfb];
+      const rs = await dispatch('updateChartfireBase', params);
+      return rs;
+    } catch (err) {
+      return { status: 'failed', message: err.message };
+    }
+  },
+
+  async deleteChart({ dispatch, commit, state }, params) {
+    const nchart = params[0];
+    const uidfb = params[1];
+
+    let nChartList = state.chartList.filter((chart) => {
+      return nchart.id !== chart.id;
+    });
+    // first update store chart list
+    commit('setCharList', nChartList);
+
+    // then update firestore chart info
+    try {
+      params = [uidfb];
+      const rs = await dispatch('updateChartfireBase', params);
+      return rs;
+    } catch (err) {
+      return { status: 'failed', message: err.message };
+    }
+  },
+
+  // addSerie({ commit, state}, serie) {
+  //   this.chartList.series.push(serie);
+  // },
+
+  /**
+   *
+   * @param {https://firebase.google.com/docs/firestore/manage-data/add-data} param0
+   * @param {*} params
+   */
+  async createChartOnFireBase({ commit, state }, params) {
+    const firebaseUID = params[0];
+    const data = { chartlist: state.chartList };
+    db.collection('charts')
+      .doc(firebaseUID)
+      .set(data)
+      .then((rs) => {
+        console.log('Object created, ', rs);
+      })
+      .catch((error) => {
+        console.error('Error writing document: ', error);
+      });
+  },
 
   async updateChartfireBase({ commit, state }, params) {
     const firebaseUID = params[0];
     try {
-      const ref = db.collection('charts').doc(firebaseUID);
-      const obj = { chartlist: state.chartList };
-      console.log('DB: ', state.chartList);
-      const rs = await db.collection('charts').doc(firebaseUID).set(obj);
-    } catch (error) {
-      console.error('Error writing document: ', error);
+      const data = { chartlist: state.chartList };
+      console.log('update - uid: [', firebaseUID, ']', data);
+      //await db.collection('charts').doc(firebaseUID).remove();
+      const rs = await db.collection('charts').doc(firebaseUID).set(data);
+      return rs;
+    } catch (err) {
+      return { status: 'failed', message: err.message };
     }
   },
 

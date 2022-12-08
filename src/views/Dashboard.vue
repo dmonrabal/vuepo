@@ -69,7 +69,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-  </v-row>
+    </v-row>
     <v-row class="flex-row-reverse">
       <v-dialog
         v-model="dialog"
@@ -362,7 +362,7 @@ import Loading from '@/components/Loading';
 import VueApexCharts from 'vue-apexcharts';
 import ApexCharts from 'apexcharts';
 import { mapState, mapActions } from 'vuex';
-import moment from 'moment';
+//import moment from 'moment';
 
 export default {
   name: 'Dashboard',
@@ -370,7 +370,7 @@ export default {
     window.setInterval(() => {
       this.reloadCharts();
       //this.timeSeries();
-    }, 60000);
+    }, 200000);
   },
 
   data() {
@@ -547,29 +547,22 @@ export default {
   },
 
   methods: {
-    async timeSeries() {
-      this.seriesA.forEach((serie) => {
-        console.log('Lanzado!');
-        serie.data.push({ x: new Date().toISOString(), y: 26 });
-      });
-
-      ApexCharts.exec('vuechart-example00', 'updateSeries', [
-        { data: this.seriesA[0].data },
-        { data: this.seriesA[1].data },
-      ]);
-    },
-
+    /**
+     * Realoads chart list with the last data on database
+     * Only charts with periods 1H or 24H (last hour or last 24 hours)
+     * will be updated.
+     */
     async reloadCharts() {
+      console.log('[RELOADING CHARTS .... ]');
+      let isData = false;
       const charts = this.charts.chartList.filter((chart) => {
         return chart.period !== 3;
       });
 
       await Promise.all(
         charts.map(async (chart) => {
-          console.log('Calling Charts [CHART]');
           chart.series.map(async (serie) => {
-            serie.data = [];
-            console.log('Calling Charts [SERIE]');
+            //serie.data = [];
 
             // TODO get APITOKEN from device
             let params = ['xytVxvDJSD7Qqse1VOKdd'];
@@ -579,32 +572,35 @@ export default {
             params.push(chart.dateReq[1]);
 
             const dta = await this.getData(params);
-            //console.log('RESSSSS -> ', dta);
-
             if (dta.series.length > 0) {
-              //console.log('EO: ', dta.series);
               // Only check first serie
               const ds = dta.series[0];
+              isData = true;
               ds.samples.forEach((s) => {
                 serie.data.push({
                   x: utils.formatDate(new Date(s.date)),
                   y: s.value,
                 });
               });
-            }
+            } 
+
             //chart.series.push(serie);
             //console.log('SERIE DATA: ', serie.data);
             // ApexCharts.exec(serie.id, 'updateSeries', [{ data: serie.data }]);
           });
         })
       );
+      if (charts.length > 0 && isData) {
+        await this.uploadChartList();
+      } else {
+        console.log('[NO DATA!!]');
+      }
     },
 
     addSerie() {
       this.editedSerie.id = 'id' + Math.random().toString(16).slice(2);
       this.editedSerie.data = [];
       this.seriesChart.push(this.editedSerie);
-      //console.log('Llamando a addSerie: ', this.seriesChart);
       this.closeMenuSeries();
     },
 
@@ -613,19 +609,12 @@ export default {
 
       this.seriesChart = this.seriesChart.map((serie) => {
         if (serie.id === this.editedSerie.id) {
-          console.log('Localizado');
           serie.name = this.editedSerie.name;
           serie.color = this.editedSerie.color;
           serie.elements = this.editedSerie.elements;
         }
         return serie;
       });
-      console.log(
-        'Esta es la serie actualizada: ',
-        this.seriesChart,
-        ', editedSerie: ',
-        this.editedSerie
-      );
       this.closeMenuSeries();
     },
 
@@ -670,12 +659,6 @@ export default {
       this.editSerieMode = false;
       this.editedSerie = Object.assign({}, this.defaultSerie);
       this.editedSerie.elements = Object.assign({}, this.defaultSerie.elements);
-      console.log(
-        'Llamando a closeMenuSeries: ',
-        this.editedSerie,
-        ', defaultSerie: ',
-        this.defaultSerie
-      );
     },
 
     editChart(item) {
@@ -694,13 +677,10 @@ export default {
 
     async deleteItemConfirm() {
       this.cargando = true;
-      const rs = await this.$store.dispatch(
-        'charts/deleteChart',
-        this.editedChart
-      );
-       // firebase store chart
-      this.uploadChartList();
-
+      const params = [this.editedChart];
+      params.push(this.users.user.fireUID);
+      const rs = await this.$store.dispatch('charts/deleteChart', params);
+      console.log('[Firestore Response] - ', rs);
       this.cargando = false;
       this.dialogDelete = false;
     },
@@ -797,10 +777,9 @@ export default {
       );
 
       //console.log('Chart enviado ', chart);
-      this.$store.dispatch('charts/addChart', chart);
-
-      // firebase store chart
-      this.uploadChartList();
+      const params = [chart];
+      params.push(this.users.user.fireUID);
+      const rs = await this.$store.dispatch('charts/addChart', params);
     },
 
     calculateDates(period) {
@@ -830,7 +809,7 @@ export default {
     async getChartListFireBase() {
       try {
         const res = await this.$store.dispatch('charts/getChartsFireBase');
-        console.log('RES DATA: ', res);
+        //console.log('RES DATA: ', res);
         return res;
       } catch (err) {
         console.log('[ERROR] - getData', err.message);
@@ -847,7 +826,7 @@ export default {
     async getData(params) {
       try {
         const res = await this.$store.dispatch('charts/getData', params);
-        console.log('RES DATA: ', res);
+        //console.log('RES DATA: ', res);
         return res;
       } catch (err) {
         console.log('[ERROR] - getData', err.message);
@@ -958,8 +937,12 @@ export default {
     async uploadChartList() {
       const params = [this.users.user.fireUID];
       try {
-        const rs = this.$store.dispatch('charts/updateChartfireBase', params);
-        console.log('[uploadChartList] - ', rs);
+        const rs = await this.$store.dispatch(
+          'charts/updateChartfireBase',
+          params
+        );
+        console.log('[uploadChartList] - DONE');
+        return rs;
       } catch (err) {
         console.log('[ERROR] - uploadChartList: ' + err.message);
       }
