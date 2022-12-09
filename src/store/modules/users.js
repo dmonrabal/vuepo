@@ -34,6 +34,8 @@ const actions = {
         email: user.email,
         password: user.password,
       });
+
+      console.log('Res login: ', res);
       // firebase authentication
       if (res === null || res === undefined || res.status !== 'success') {
         //throw new AppError(res.data.message, res.data.code);
