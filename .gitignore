@@ -3,7 +3,7 @@ node_modules
 garbage
 
 # local env files
-*.local
+notes.txt.local
 
 # Log files
 npm-debug.log*
