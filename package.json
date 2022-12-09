@@ -21,6 +21,7 @@
     "mapbox-gl": "^2.7.0",
     "material-design-icons-iconfont": "6.1.0",
     "moment": "^2.29.4",
+    "nodemon": "^2.0.20",
     "roboto-fontface": "*",
     "serve-static": "^1.15.0",
     "vue": "^2.6.11",

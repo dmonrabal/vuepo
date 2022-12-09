@@ -19,7 +19,6 @@ const mutations = {
         //router.push('/usuario');
         router.push('/');
       }
-      
     } else {
       state.isLogged = false;
       localStorage.removeItem('user');
@@ -36,8 +35,9 @@ const actions = {
         password: user.password,
       });
       // firebase authentication
-      if (res.status !== 'success') {
-        throw new AppError(res.data.message, res.data.code);
+      if (res === null || res === undefined || res.status !== 'success') {
+        //throw new AppError(res.data.message, res.data.code);
+        throw new AppError('Error logging', 500);
       }
       let userDB = {
         name: res.data.user.name,
@@ -147,4 +147,4 @@ const actions = {
   },
 };
 
-  export default { namespaced: true, state, getters, mutations, actions };
+export default { namespaced: true, state, getters, mutations, actions };
