@@ -257,7 +257,7 @@ export default {
     async logIn(user) {
       this.cargando = true;
       const res = await this.$store.dispatch('users/logIn', user);
-      console.log('Mi respuesta: ', res);
+      console.log('Mi respuesta ss: ', res);
 
       if (res.status === 'success') {
         const resLoad = await this.loadImage();
@@ -267,7 +267,11 @@ export default {
       if (res.status === 'failed') {
         utils.alert(this.myAlert, 'error', res.message);
       } else {
-        utils.alert(this.myAlert, 'success', 'Usuario registrado correctamente.');
+        utils.alert(
+          this.myAlert,
+          'success',
+          'Usuario registrado correctamente.'
+        );
       }
     },
 
@@ -282,17 +286,24 @@ export default {
     },
 
     async loadImage() {
-       try {
-        const refImg = storage.ref().child(this.users.user.email).child('fotoPerfil');
+      try {
+        const refImg = storage
+          .ref()
+          .child(this.users.user.email)
+          .child('fotoPerfil');
         const urlDescarga = await refImg.getDownloadURL();
         console.log(urlDescarga);
         this.users.user.photo = urlDescarga;
-        utils.alert(this.myAlert, 'success', utils.messages.USER_IMGUPD_SUCCESS);
+        utils.alert(
+          this.myAlert,
+          'success',
+          utils.messages.USER_IMGUPD_SUCCESS
+        );
       } catch (err) {
         console.log(err);
         utils.alert(this.myAlert, 'error', utils.messages.USER_IMGUPD_ERROR);
       }
-    }
+    },
   },
 };
 </script>
