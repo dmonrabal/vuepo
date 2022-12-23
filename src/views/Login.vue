@@ -257,7 +257,7 @@ export default {
     async logIn(user) {
       this.cargando = true;
       const res = await this.$store.dispatch('users/logIn', user);
-      console.log('Mi respuesta ss: ', res);
+      console.log('Mi respuesta tt: ', res);
 
       if (res.status === 'success') {
         const resLoad = await this.loadImage();
