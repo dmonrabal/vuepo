@@ -10,6 +10,8 @@ export default {
       .catch((error) => error.response);
   },
   post(url, body, options) {
+    console.log('BASE PATH AXIOS: ', axios.defaults.baseURL);
+    console.log('URL AXIOS POST METHOD: ', url);
     return axios
       .post(url, body, options)
       .then((response) => response.data)
