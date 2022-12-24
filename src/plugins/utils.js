@@ -36,6 +36,9 @@ exports.messages = {
   SENSOR_DELETE_ERROR: 'Error al eliminar el sensor.',
 
   // User messages
+  USER_LOGIN_SUCCESS: 'Usuario logueado con éxito.',
+  USER_LOGIN_ERROR: 'Error al loguear usuario.',
+
   USER_CREATE_SUCCESS: 'Usuario creado con éxito.',
   USER_UPDATE_SUCCESS: 'Usuario actualizado con éxito',
   USER_DELETE_SUCCESS: 'Usuario eliminado con éxito',
@@ -78,5 +81,4 @@ exports.formatDate = (date) => {
       this.padTo2Digits(date.getSeconds()),
     ].join(':')
   );
-  
 };

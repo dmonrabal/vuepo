@@ -256,29 +256,31 @@ export default {
 
     async logIn(user) {
       this.cargando = true;
-      const res = await this.$store.dispatch('users/logIn', user);
-      console.log('Mi respuesta tt: ', res);
 
-      if (res.status === 'success') {
-        const resLoad = await this.loadImage();
-      }
+      try {
+        const res = await this.$store.dispatch('users/logIn', user);
+        console.log('RS desde View Login: ', res);
 
-      this.cargando = false;
-      if (res.status === 'failed') {
-        utils.alert(this.myAlert, 'error', res.message);
-      } else {
-        utils.alert(
-          this.myAlert,
-          'success',
-          'Usuario registrado correctamente.'
-        );
+        if (res.status === 'success') {
+          const resLoad = await this.loadImage();
+          utils.alert(
+            this.myAlert,
+            'success',
+            utils.messages.USER_LOGIN_SUCCESS
+          );
+        } else {
+          utils.alert(this.myAlert, 'error', res.message);
+        }
+        this.cargando = false;
+      } catch (error) {
+        utils.alert(this.myAlert, 'error', utils.messages.USER_LOGIN_ERROR);
       }
     },
 
     async newUser(user) {
       this.cargando = true;
       const res = await this.$store.dispatch('users/createUser', user);
-      console.log('RESSSSS-> ', res);
+      console.log('[New User] - Response:  ', res);
       this.cargando = false;
       if (res.status === 'failed') {
         utils.alert(this.myAlert, 'error', res.message);

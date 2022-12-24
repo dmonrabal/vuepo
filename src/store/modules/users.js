@@ -39,7 +39,7 @@ const actions = {
       // firebase authentication
       if (res === null || res === undefined || res.status !== 'success') {
         //throw new AppError(res.data.message, res.data.code);
-        throw new AppError('Error logging', 500);
+        throw new AppError(res.data.message, 500);
       }
       let userDB = {
         name: res.data.user.name,
