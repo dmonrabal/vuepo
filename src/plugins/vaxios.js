@@ -12,6 +12,7 @@ export default {
   post(url, body, options) {
     console.log('BASE PATH AXIOS: ', axios.defaults.baseURL);
     console.log('URL AXIOS POST METHOD: ', url);
+    console.log('Variables: ', process.env);
     return axios
       .post(url, body, options)
       .then((response) => response.data)
