@@ -256,6 +256,7 @@ export default {
 
     async logIn(user) {
       this.cargando = true;
+      console.log("[ENVIRONMENT VARIABLES]: ", process.env);
 
       try {
         const res = await this.$store.dispatch('users/logIn', user);

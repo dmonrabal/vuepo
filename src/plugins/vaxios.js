@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = process.env.VUE_APP_URL_PROD;
+axios.defaults.baseURL = process.env.VUE_APP_SIMOPO_PROD;
 
 export default {
   get(url, options) {
