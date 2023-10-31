@@ -1,0 +1,209 @@
+##########################################
+
+Install the Heroku CLI
+Download and install the Heroku CLI.
+
+If you haven't already, log in to your Heroku account and follow the prompts to create a new SSH public key.
+
+$ heroku login
+Create a new Git repository
+Initialize a git repository in a new or existing directory
+
+$ cd my-project/
+$ git init
+$ heroku git:remote -a vuepo
+Deploy your application
+Commit your code to the repository and deploy it to Heroku using Git.
+
+$ git add .
+$ git commit -am "make it better"
+$ git push heroku master
+
+
+Existing Git repository
+For existing repositories, simply add the heroku remote
+
+$ heroku git:remote -a vuepo
+
+###########################################
+
+Grid
+https://codepen.io/begueradj-the-sasster/pen/VOYObP?&editable=true&editors=101
+
+
+
+
+
+/// FIREBASE Rules
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth == null;
+    }
+  }
+}
+
+
+
+rules_version = '2';
+
+service firebase.storage {
+  match /{userEmail}/fotoPerfil {
+    	allow read;
+  		allow write: if request.auth != null && request.auth.token.email == userEmail && userEmail == request.auth.token.email;
+  }
+}
+
+
+
+
+
+// Esta regla ha funcionado
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read: if true; 
+      allow write: if request.auth!=null && request.auth.token.email == 'manager1@gmail.com';
+    }
+  }
+}
+
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{myEmail}/fotoPerfil {
+      allow read: if true; 
+      allow write: if request.auth!=null && request.auth.token.email == myEmail;
+    }
+  }
+}
+
+
+
+
+
+
+// TODO
+
+////////////////////////////////////////////
+                 USERS
+////////////////////////////////////////////
+Implement recover password.
+Split LogIn/SignUp in two views. Access to each view through a link.
+A Manager project was able to create users project.
+
+////////////////////////////////////////////
+                 API
+////////////////////////////////////////////
+Add recover/modify API token not use token in code
+
+
+////////////////////////////////////////////
+                 DASHBOARD
+////////////////////////////////////////////
+Improve quality of charts
+Resolve problem Nan
+Resolve problem when data charts disappear of card
+Save values on firebase
+
+
+////////////////////////////////////////////
+                 STATISTICS
+////////////////////////////////////////////
+
+
+
+
+Refactoring code
+
+getData method is duplicated in devices and chart modules store
+
+populateProGrp is a method duplicated in Devices and Map views
+
+
+
+
+
+//////////////////////////////////////////////
+
+        ERROR IN PRODUCTION ENVIRONMENT
+    
+//////////////////////////////////////////////
+
+undefined
+ERROR {
+messageFormat: undefined,
+stringValue: '"Invalid Date"',
+kind: 'date',
+value: Invalid Date,
+path: 'firstSample',
+reason: AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+ 
+assert.ok(!isNaN(value.valueOf()))
+ 
+at castDate (/app/node_modules/mongoose/lib/cast/date.js:13:12)
+at SchemaDate.cast (/app/node_modules/mongoose/lib/schema/date.js:351:12)
+at SchemaDate.handleSingle (/app/node_modules/mongoose/lib/schema/date.js:364:15)
+at SchemaDate.castForQuery (/app/node_modules/mongoose/lib/schema/date.js:395:18)
+at SchemaDate.SchemaType.castForQueryWrapper (/app/node_modules/mongoose/lib/schematype.js:1483:22)
+at cast (/app/node_modules/mongoose/lib/cast.js:310:39)
+at cast (/app/node_modules/mongoose/lib/cast.js:74:18)
+at cast (/app/node_modules/mongoose/lib/cast.js:74:18)
+at cast (/app/node_modules/mongoose/lib/cast.js:74:18)
+at model.Query.Query.cast (/app/node_modules/mongoose/lib/query.js:4800:12)
+at model.Query.Query._castConditions (/app/node_modules/mongoose/lib/query.js:1843:10)
+at model.Query.<anonymous> (/app/node_modules/mongoose/lib/query.js:1870:8)
+undefined
+at model.Query._wrappedThunk [as _find] (/app/node_modules/mongoose/lib/helpers/query/wrapThunk.js:16:8)
+at /app/node_modules/kareem/index.js:279:20
+at _next (/app/node_modules/kareem/index.js:103:16)
+at /app/node_modules/kareem/index.js:508:38 {
+generatedMessage: true,
+code: 'ERR_ASSERTION',
+actual: false,
+expected: true,
+operator: '=='
+},
+statusCode: 500,
+status: 'error',
+message: 'Cast to date failed for value "Invalid Date" at path "firstSample" for model "Data"'
+}
+ERROR {
+messageFormat: undefined,
+stringValue: '"Invalid Date"',
+kind: 'date',
+value: Invalid Date,
+path: 'firstSample',
+reason: AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+ 
+assert.ok(!isNaN(value.valueOf()))
+ 
+at castDate (/app/node_modules/mongoose/lib/cast/date.js:13:12)
+at SchemaDate.cast (/app/node_modules/mongoose/lib/schema/date.js:351:12)
+at SchemaDate.handleSingle (/app/node_modules/mongoose/lib/schema/date.js:364:15)
+at SchemaDate.castForQuery (/app/node_modules/mongoose/lib/schema/date.js:395:18)
+at SchemaDate.SchemaType.castForQueryWrapper (/app/node_modules/mongoose/lib/schematype.js:1483:22)
+at cast (/app/node_modules/mongoose/lib/cast.js:310:39)
+at cast (/app/node_modules/mongoose/lib/cast.js:74:18)
+at cast (/app/node_modules/mongoose/lib/cast.js:74:18)
+at cast (/app/node_modules/mongoose/lib/cast.js:74:18)
+at model.Query.Query.cast (/app/node_modules/mongoose/lib/query.js:4800:12)
+at model.Query.Query._castConditions (/app/node_modules/mongoose/lib/query.js:1843:10)
+at model.Query.<anonymous> (/app/node_modules/mongoose/lib/query.js:1870:8)
+at model.Query._wrappedThunk [as _find] (/app/node_modules/mongoose/lib/helpers/query/wrapThunk.js:16:8)
+at /app/node_modules/kareem/index.js:279:20
+at _next (/app/node_modules/kareem/index.js:103:16)
+at /app/node_modules/kareem/index.js:508:38 {
+generatedMessage: true,
+code: 'ERR_ASSERTION',
+actual: false,
+expected: true,
+operator: '=='
+},
+statusCode: 500,
+status: 'error',
+message: 'Cast to date failed for value "Invalid Date" at path "firstSample" for model "Data"'
+}

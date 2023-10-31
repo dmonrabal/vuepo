@@ -1,0 +1,18 @@
+// TODO
+
+
+1. Arreglar el repositorio GITHUB para que lo que esté en GitHub contenga los últimos
+cambios y se pueda actualizar el repositorio a medida que avanza el desarrollo.
+
+2. View Login. Implementación formulario recuperación contraseña
+
+3. View User. Mejorar la apariencia de ajustes del usuario
+
+4. Mejorar y revisar la visualización de la aplicación desde diferentes tamaños de pantalla
+
+5. Resolver problema de caché en lo referente a las gráficas. Al cabo de un tiempo,
+la aplicación empieza a mostrar gráficas de días anteriores.
+
+6. Desloguear el usuario al pasar 10 minutos de inactividad.
+
+7. Continuar con las gráficas
