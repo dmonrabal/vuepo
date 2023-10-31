@@ -336,7 +336,7 @@
       <v-dialog v-model="dialogDelete" max-width="500px">
         <v-card>
           <v-card-title class="text-h5"
-            >¿Estás seguro de eliminar este elemento?</v-card-title
+            >¿Estás seguro de eliminar este elemento test?</v-card-title
           >
           <v-card-actions>
             <v-spacer></v-spacer>
