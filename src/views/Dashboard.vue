@@ -70,6 +70,9 @@
         </v-card>
       </v-col>
     </v-row>
+    
+    
+    <!-- DIALOG -->
     <v-row class="flex-row-reverse">
       <v-dialog
         v-model="dialog"
@@ -116,9 +119,13 @@
                       <v-icon color="purple" size="80" class="mb-2"
                         >mdi-chart-areaspline</v-icon
                       >
+                      <!--v-icon icon="md:home"></v-icon>
+                      <v-icon size="40">md:area</v-icon>
+                      <v-icon size="40">md:chart:area</v-icon>
+                      <v-icon size="40">md:chart</v-icon-->
                     </v-radio-group>
                   </v-col>
-                  <v-col cols="12" sm="4" class="justify-conten">
+                  <v-col cols="12" sm="4" class="justify-content">
                     <span class="text-h6 font-weight-light"
                       >Periodo de las series</span
                     >
@@ -179,8 +186,8 @@
                         >No hay series</small
                       >
                     </span>
-                    <v-divider></v-divider>  
-                      <v-btn
+                    <!---divider></v-divider-->  
+                      <!--v-btn
                           small
                           color="primary"
                           dark
@@ -196,7 +203,7 @@
                           class="ml-2"
                           v-if="!menuCharts && seriesChart.length !== 3"
                           >Añade una serie (Máximo 3)
-                        </small>
+                        </small-->
                     
                     <v-list shaped class="mt-5">
                       <v-list-item-group color="primary">
@@ -232,8 +239,11 @@
                       </v-list-item-group>
                     </v-list>
                   </v-col>
-                  <v-col cols="12" sm="4" class="justify-content" v-if="menuCharts">
+                  <v-col cols="12" sm="4" class="justify-content">
                     <div>
+                      <span class="text-h6 font-weight-light">
+                        Series del gráfico
+                      </span>
                       <v-select
                         :items="proItems"
                         dense
@@ -309,9 +319,9 @@
                         >
                           <v-icon>mdi-check</v-icon>
                         </v-btn>
-                        <v-btn icon color="red" @click="closeMenuSeries">
+                        <!--v-btn icon color="red" @click="closeMenuSeries">
                           <v-icon>mdi-export</v-icon>
-                        </v-btn>
+                        </v-btn-->
                       </v-card-actions>
                     </div>
                   </v-col>
@@ -325,7 +335,7 @@
                 color="blue darken-1"
                 text
                 @click="save()"
-                :disabled="!isFormValid"
+                :disabled="seriesChart.length === 0"
               >
                 Save
               </v-btn>
@@ -564,8 +574,13 @@ export default {
             let params = ['xytVxvDJSD7Qqse1VOKdd'];
             params.push(serie.elements.device);
             params.push(serie.elements.sensor);
-            params.push(chart.dateReq[0]);
-            params.push(chart.dateReq[1]);
+            
+            // OJO, actualizar fechas respecto al momento actual
+            let newDates = this.calculateDates(chart.period);
+            params.push(newDates[0]);
+            params.push(newDates[1]);
+            //params.push(chart.dateReq[0]);
+            //params.push(chart.dateReq[1]);
 
             const dta = await this.getData(params);
             console.log('[INFO] Simopo RES-> ', dta);
@@ -846,17 +861,18 @@ export default {
 
       if (period === '2') {
         // From 1 week ago
-        dateOffsetDay *= 7;
         dateFrom = new Date();
-        dateFrom.setTime(dateFrom.getTime() - dateOffsetDay);
+        dateFrom.setTime(Date.now() - dateOffsetDay * 7);
+        //dateFrom.setTime(dateFrom.getTime() - dateOffsetDay*7);
         dateTo = '';
       } else if (period === '1') {
         // Last 24 hours
         dateFrom = new Date();
-        dateFrom.setTime(dateFrom.getTime() - dateOffsetDay);
+        dateFrom.setTime(Date.now() - dateOffsetDay);
+        //dateFrom.setTime(dateFrom.getTime() - dateOffsetDay);
         dateTo = '';
       } else {
-        // 0 Last 24H by default Nothing to do
+        // 0 Last hour by default Nothing to do
       }
       //console.log('Las fechas FROM-TO: ', dateFrom, ' ', dateTo);
       const dates = [dateFrom, dateTo];

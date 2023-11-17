@@ -14,6 +14,7 @@ import Device from '../views/Device';
 import User from '../views/User';
 import Data from '../views/Data';
 import Mapa from '../views/Mapa';
+import Statistics from '../views/Statistics';
 
 // Only for test purpose
 import Grid from '../views/Grid';
@@ -117,6 +118,14 @@ const routes = [
     path: '/grid',
     name: 'Grid',
     component: Grid,
+    meta: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: '/estadisticas',
+    name: 'Statistics',
+    component: Statistics,
     meta: {
       requireAuth: true,
     },
